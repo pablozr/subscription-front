@@ -1,0 +1,440 @@
+@import "primeicons/primeicons.css";
+@import 'fonts/fonts.css';
+
+@layer reset, primeng;
+
+@layer reset {
+  button {
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+
+:root {
+  --primary-color: #7c3aed;
+  --secondary-color: #ffffff;
+  --scrollbar-thumb: #b8a7f5;
+  --shadow-color: rgba(91, 33, 182, 0.07);
+  --accent-gradient: linear-gradient(135deg, #6d28d9, #8b5cf6);
+  --header-bg: rgba(244, 242, 248, 0.9);
+  --overlay-bg: rgba(24, 21, 35, 0.42);
+  /* Auth / login-register — claro: fundo quente e baixo brilho (evita “tela branca”) */
+  --auth-panel-bg: linear-gradient(168deg, #ebe9f0 0%, #e4e1ea 42%, #eceaf1 100%);
+  --auth-panel-solid: #e8e6ef;
+  --auth-text: #3f3d46;
+  --auth-heading: #2d2a32;
+  --auth-muted: rgba(45, 42, 50, 0.55);
+  --auth-muted-strong: rgba(45, 42, 50, 0.78);
+  --auth-label: rgba(45, 42, 50, 0.62);
+  --auth-input-bg: rgba(255, 255, 255, 0.72);
+  --auth-input-border: rgba(91, 33, 182, 0.12);
+  --auth-input-focus-bg: rgba(255, 255, 255, 0.92);
+  --auth-input-placeholder: rgba(45, 42, 50, 0.38);
+  --auth-cta-bg: rgba(124, 58, 237, 0.07);
+  --auth-cta-border: rgba(124, 58, 237, 0.2);
+  --auth-cta-hover: rgba(124, 58, 237, 0.12);
+  --auth-cta-shadow: 0 2px 14px rgba(91, 33, 182, 0.08);
+  --auth-divider: rgba(45, 42, 50, 0.09);
+  --auth-social-bg: rgba(255, 255, 255, 0.65);
+  --auth-social-border: rgba(91, 33, 182, 0.14);
+  /* Auth hero (painel esquerdo): brilho da imagem com grayscale */
+  --auth-hero-brightness: 0.62;
+}
+
+.my-app-dark {
+  --primary-color: #8b5cf6;
+  --secondary-color: #ffffff;
+  --scrollbar-thumb: #6d28d9;
+  --shadow-color: rgba(139, 92, 246, 0.12);
+  --accent-gradient: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+  --header-bg: rgba(15, 13, 21, 0.82);
+  --overlay-bg: rgba(15, 10, 30, 0.6);
+  --auth-panel-bg: linear-gradient(180deg, #141218 0%, #0f0d15 100%);
+  --auth-panel-solid: #141218;
+  --auth-text: #ececee;
+  --auth-heading: #fafafa;
+  --auth-muted: rgba(236, 236, 238, 0.5);
+  --auth-muted-strong: rgba(236, 236, 238, 0.72);
+  --auth-label: rgba(236, 236, 238, 0.55);
+  --auth-input-bg: rgba(255, 255, 255, 0.06);
+  --auth-input-border: rgba(255, 255, 255, 0.1);
+  --auth-input-focus-bg: rgba(139, 92, 246, 0.12);
+  --auth-input-placeholder: rgba(236, 236, 238, 0.28);
+  --auth-cta-bg: rgba(139, 92, 246, 0.14);
+  --auth-cta-border: rgba(139, 92, 246, 0.38);
+  --auth-cta-hover: rgba(139, 92, 246, 0.22);
+  --auth-cta-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --auth-divider: rgba(255, 255, 255, 0.1);
+  --auth-social-bg: rgba(255, 255, 255, 0.04);
+  --auth-social-border: rgba(255, 255, 255, 0.1);
+  --auth-hero-brightness: 0.38;
+}
+
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  background-color: #e6e4ec;
+}
+
+html.my-app-dark body {
+  background-color: #0f0d15;
+}
+
+/* Tipografia compartilhada — auth (evita caixa alta em blocos; alinha ao guia visual) */
+.auth-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--auth-muted);
+  margin: 0 0 6px;
+}
+
+.auth-title-gradient {
+  font-size: clamp(1.65rem, 4vw, 1.95rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  margin: 0 0 12px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-lead {
+  font-size: 0.9375rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  line-height: 1.55;
+  color: var(--auth-muted-strong);
+  margin: 0;
+  max-width: 38ch;
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.25);
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.grid {
+  @media screen and (min-width: 1400px) {
+    background-position: top;
+  }
+}
+
+.card {
+  @media screen and (max-width: 1000px) {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+h3, h1, h2 {
+  margin: 0;
+  padding: auto;
+}
+
+.p-tabmenu-nav {
+  gap: .4rem;
+}
+
+.no-border-radius {
+  border-radius: 0 0 5px 5px !important;
+}
+
+.all-container {
+  margin: 5px;
+}
+
+.special-input {
+  *:nth-child(1) {
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+  }
+}
+
+.action-button {
+  background: var(--accent-gradient);
+  border: none;
+  color: var(--secondary-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  :nth-child(1) {
+    color: var(--secondary-color);
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--shadow-color);
+  }
+}
+
+* {
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+}
+
+.main-div {
+  z-index: 999 !important;
+}
+
+.shadow-div {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+  transition: opacity 0.3s ease;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Toast global — AppToastService + p-toast único no app (sucesso / erro destacados) */
+/* -------------------------------------------------------------------------- */
+
+.p-toast.app-toast-stack {
+  width: min(22rem, calc(100vw - 1.5rem)) !important;
+}
+
+.p-toast.app-toast-stack.p-toast-top-right {
+  top: max(0.85rem, env(safe-area-inset-top, 0px)) !important;
+  right: max(0.85rem, env(safe-area-inset-right, 0px)) !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message {
+  margin: 0 0 0.65rem !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  backdrop-filter: blur(14px) saturate(1.35);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+}
+
+.p-toast.app-toast-stack .p-toast-message-content {
+  padding: 1rem 1rem 1rem 0.95rem !important;
+  gap: 0.85rem !important;
+  align-items: flex-start !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-icon {
+  font-size: 1.35rem !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  margin-top: 0.12rem !important;
+}
+
+.p-toast.app-toast-stack .p-toast-summary {
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  font-weight: 650 !important;
+  font-size: 0.9375rem !important;
+}
+
+.p-toast.app-toast-stack .p-toast-detail {
+  line-height: 1.5;
+  font-size: 0.8125rem !important;
+  margin-top: 0.2rem;
+  opacity: 0.92;
+}
+
+/* Info / warn / secondary — barra lateral + fundo suave */
+.p-toast.app-toast-stack .p-toast-message-info {
+  border: 1px solid rgba(14, 165, 233, 0.22) !important;
+  border-left: 4px solid #0ea5e9 !important;
+  background: linear-gradient(120deg, rgba(14, 165, 233, 0.12), rgba(255, 255, 255, 0.88)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.06),
+    0 12px 28px -8px rgba(14, 165, 233, 0.18) !important;
+  color: #0f172a !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-success {
+  border: 1px solid rgba(16, 185, 129, 0.28) !important;
+  border-left: 4px solid #059669 !important;
+  background: linear-gradient(125deg, rgba(16, 185, 129, 0.16), rgba(236, 253, 245, 0.92), rgba(255, 255, 255, 0.9)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.05),
+    0 14px 32px -10px rgba(5, 150, 105, 0.28) !important;
+  color: #064e3b !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-success .p-toast-detail {
+  color: rgba(6, 78, 59, 0.88) !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-warn {
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  border-left: 4px solid #d97706 !important;
+  background: linear-gradient(125deg, rgba(245, 158, 11, 0.12), rgba(255, 251, 235, 0.94)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.06),
+    0 14px 32px -10px rgba(217, 119, 6, 0.22) !important;
+  color: #78350f !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-error {
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  border-left: 4px solid #e11d48 !important;
+  background: linear-gradient(125deg, rgba(244, 63, 94, 0.14), rgba(255, 241, 242, 0.94), rgba(255, 255, 255, 0.88)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.06),
+    0 14px 36px -10px rgba(225, 29, 72, 0.3) !important;
+  color: #881337 !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-error .p-toast-detail {
+  color: rgba(136, 19, 55, 0.9) !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-secondary {
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-left: 4px solid #94a3b8 !important;
+}
+
+.p-toast.app-toast-stack .p-toast-message-contrast {
+  border-left-width: 4px !important;
+}
+
+/* Tema escuro */
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-info {
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  border-left: 4px solid #38bdf8 !important;
+  background: linear-gradient(120deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.92)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.35),
+    0 16px 40px -12px rgba(56, 189, 248, 0.2) !important;
+  color: #e2e8f0 !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-info .p-toast-detail {
+  color: rgba(226, 232, 240, 0.82) !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-success {
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+  border-left: 4px solid #34d399 !important;
+  background: linear-gradient(125deg, rgba(52, 211, 153, 0.14), rgba(6, 78, 59, 0.45), rgba(15, 23, 42, 0.94)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    0 16px 40px -12px rgba(52, 211, 153, 0.22) !important;
+  color: #d1fae5 !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-success .p-toast-detail {
+  color: rgba(209, 250, 229, 0.85) !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-warn {
+  border: 1px solid rgba(251, 191, 36, 0.28) !important;
+  border-left: 4px solid #fbbf24 !important;
+  background: linear-gradient(125deg, rgba(251, 191, 36, 0.1), rgba(15, 23, 42, 0.94)) !important;
+  box-shadow: 0 16px 40px -12px rgba(251, 191, 36, 0.15) !important;
+  color: #fef3c7 !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-error {
+  border: 1px solid rgba(251, 113, 133, 0.35) !important;
+  border-left: 4px solid #fb7185 !important;
+  background: linear-gradient(125deg, rgba(251, 113, 133, 0.12), rgba(88, 28, 28, 0.35), rgba(15, 23, 42, 0.95)) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.45),
+    0 16px 44px -12px rgba(251, 113, 133, 0.25) !important;
+  color: #ffe4e6 !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-error .p-toast-detail {
+  color: rgba(255, 228, 230, 0.88) !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-left: 4px solid #a1a1aa !important;
+}
+
+/* Ícones */
+.p-toast.app-toast-stack .p-toast-message-info .p-toast-message-icon {
+  color: #0284c7;
+}
+
+.p-toast.app-toast-stack .p-toast-message-success .p-toast-message-icon {
+  color: #047857;
+}
+
+.p-toast.app-toast-stack .p-toast-message-warn .p-toast-message-icon {
+  color: #b45309;
+}
+
+.p-toast.app-toast-stack .p-toast-message-error .p-toast-message-icon {
+  color: #be123c;
+}
+
+.p-toast.app-toast-stack .p-toast-message-secondary .p-toast-message-icon {
+  color: #64748b;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-info .p-toast-message-icon {
+  color: #38bdf8;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-success .p-toast-message-icon {
+  color: #4ade80;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-warn .p-toast-message-icon {
+  color: #fbbf24;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-error .p-toast-message-icon {
+  color: #fb7185;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-message-secondary .p-toast-message-icon {
+  color: #d4d4d8;
+}
+
+.p-toast.app-toast-stack .p-toast-close-button {
+  opacity: 0.5;
+  flex-shrink: 0;
+  margin: 0 !important;
+  right: auto !important;
+  left: auto !important;
+  align-self: flex-start;
+  border-radius: 8px !important;
+}
+
+.p-toast.app-toast-stack .p-toast-close-button:hover {
+  opacity: 1;
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+html.my-app-dark .p-toast.app-toast-stack .p-toast-close-button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p-toast.app-toast-stack .p-toast-message-enter-active {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,46 @@
+.p-toolbar {
+  position: sticky;
+  position: -webkit-sticky;
+  z-index: 10000;
+  top: 0;
+
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+  box-shadow: 0 1px 12px var(--shadow-color);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.notification {
+  font-size: 1.3rem;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  transition: transform 0.2s ease;
+
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgb(231, 43, 43);
+    position: absolute;
+    top: -4px;
+    right: -1px;
+  }
+
+  & {
+    animation: balancar 2.5s ease-in-out infinite;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  @keyframes balancar {
+    0% { transform: rotate(12deg); }
+    50% { transform: rotate(-12deg); }
+    100% { transform: rotate(12deg); }
+  }
+}
