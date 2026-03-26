@@ -7,22 +7,22 @@
         <p class="page-eyebrow">Workspace</p>
         <h1 class="page-title">Subscriptions</h1>
         <p class="page-description">
-          Cadastre, atualize e acompanhe as suas inscricoes recorrentes em um unico painel.
+          Create, update, and track your recurring subscriptions in one place.
         </p>
       </div>
 
       <div class="hero-kpis">
         <article class="kpi-card kpi-card--solid">
-          <span>Ativas</span>
+          <span>Active</span>
           <strong>{{ totalActiveSubscriptions }}</strong>
         </article>
         <article class="kpi-card">
-          <span>Projecao mensal</span>
+          <span>Monthly projection</span>
           <strong>{{ totalMonthlyProjection | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
         </article>
         <div class="hero-action">
           <button pButton pRipple type="button" class="submit-btn" (click)="openCreateDialog()">
-            Nova inscricao
+            New subscription
           </button>
         </div>
       </div>
@@ -30,9 +30,9 @@
 
     <section class="subscriptions-panel">
       <div class="panel-head">
-        <h2>Inscricoes cadastradas</h2>
+        <h2>Registered subscriptions</h2>
         <button pButton pRipple type="button" class="secondary-btn" (click)="loadSubscriptions()" [disabled]="loading">
-          Atualizar
+          Refresh
         </button>
       </div>
 
@@ -44,7 +44,7 @@
             type="text"
             [value]="searchTerm"
             (input)="searchTerm = $any($event.target).value"
-            placeholder="Buscar por nome ou ciclo"
+            placeholder="Search by name or cycle"
           />
         </div>
 
@@ -58,7 +58,7 @@
 
         @if (hasAnyFilter) {
           <button pButton pRipple type="button" class="secondary-btn" (click)="clearFilters()">
-            Limpar
+            Clear
           </button>
         }
       </div>
@@ -66,22 +66,22 @@
       @if (loading) {
         <div class="empty-state">
           <i class="pi pi-spin pi-spinner"></i>
-          <p>Carregando inscricoes...</p>
+          <p>Loading subscriptions...</p>
         </div>
       } @else if (!subscriptions.length) {
         <div class="empty-state">
           <i class="pi pi-inbox"></i>
-          <p>Nenhuma inscricao cadastrada ainda.</p>
+          <p>No subscriptions registered yet.</p>
           <button pButton pRipple type="button" class="submit-btn" (click)="openCreateDialog()">
-            Criar primeira inscricao
+            Create first subscription
           </button>
         </div>
       } @else if (!filteredSubscriptions.length) {
         <div class="empty-state">
           <i class="pi pi-filter-slash"></i>
-          <p>Nenhuma inscricao encontrada para os filtros aplicados.</p>
+          <p>No subscriptions found for the current filters.</p>
           <button pButton pRipple type="button" class="secondary-btn" (click)="clearFilters()">
-            Limpar filtros
+            Clear filters
           </button>
         </div>
       } @else {
@@ -97,11 +97,11 @@
               </div>
 
               <div class="subscription-card__meta">
-                <span>Inicio: {{ subscription.startDate | date: 'dd/MM/yyyy' }}</span>
+                <span>Start: {{ subscription.startDate | date: 'dd/MM/yyyy' }}</span>
                 @if (subscription.nextPaymentDate) {
-                  <span>Proximo: {{ subscription.nextPaymentDate | date: 'dd/MM/yyyy' }}</span>
+                  <span>Next: {{ subscription.nextPaymentDate | date: 'dd/MM/yyyy' }}</span>
                 }
-                <span>Lembrete: {{ subscription.reminderDaysBefore }} dia(s) antes</span>
+                <span>Reminder: {{ subscription.reminderDaysBefore }} day(s) before</span>
                 <span class="status-pill" [class.status-pill--canceled]="subscription.status === 'CANCELED'">
                   {{ subscription.status }}
                 </span>
@@ -109,13 +109,13 @@
 
               <div class="subscription-card__actions">
                 <button pButton pRipple type="button" class="secondary-btn" (click)="startEdit(subscription)">
-                  Editar
+                  Edit
                 </button>
                 <button pButton pRipple type="button" class="secondary-btn" (click)="toggleStatus(subscription)">
-                  {{ subscription.status === 'ACTIVE' ? 'Cancelar' : 'Reativar' }}
+                  {{ subscription.status === 'ACTIVE' ? 'Cancel' : 'Reactivate' }}
                 </button>
                 <button pButton pRipple type="button" class="danger-btn" (click)="openDeleteDialog(subscription)">
-                  Excluir
+                  Delete
                 </button>
               </div>
             </article>
@@ -141,7 +141,7 @@
   </ng-template>
 
   <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()" class="subscription-form">
-    <label for="name">Nome</label>
+    <label for="name">Name</label>
     <input pInputText id="name" type="text" formControlName="name" placeholder="Ex.: Netflix" [ngClass]="{ 'input-invalid': isFieldInvalid('name') }" />
     @if (isFieldInvalid('name')) {
       <small class="field-error">{{ getFieldError('name') }}</small>
@@ -149,7 +149,7 @@
 
     <div class="grid-two">
       <div class="field-col">
-        <label for="price">Preco</label>
+        <label for="price">Price</label>
         <input pInputText id="price" type="number" min="0" step="0.01" formControlName="price" placeholder="0.00" [ngClass]="{ 'input-invalid': isFieldInvalid('price') }" />
         @if (isFieldInvalid('price')) {
           <small class="field-error">{{ getFieldError('price') }}</small>
@@ -157,7 +157,7 @@
       </div>
 
       <div class="field-col">
-        <label for="billingCycle">Ciclo</label>
+        <label for="billingCycle">Cycle</label>
         <select id="billingCycle" formControlName="billingCycle" [ngClass]="{ 'input-invalid': isFieldInvalid('billingCycle') }">
           @for (option of billingCycleOptions; track option.value) {
             <option [value]="option.value">{{ option.label }}</option>
@@ -171,7 +171,7 @@
 
     <div class="grid-two">
       <div class="field-col">
-        <label for="startDate">Data de inicio</label>
+        <label for="startDate">Start date</label>
         <input pInputText id="startDate" type="date" formControlName="startDate" [ngClass]="{ 'input-invalid': isFieldInvalid('startDate') }" />
         @if (isFieldInvalid('startDate')) {
           <small class="field-error">{{ getFieldError('startDate') }}</small>
@@ -179,7 +179,7 @@
       </div>
 
       <div class="field-col">
-        <label for="reminderDaysBefore">Lembrar antes (dias)</label>
+        <label for="reminderDaysBefore">Reminder before (days)</label>
         <input pInputText id="reminderDaysBefore" type="number" min="0" formControlName="reminderDaysBefore" [ngClass]="{ 'input-invalid': isFieldInvalid('reminderDaysBefore') }" />
         @if (isFieldInvalid('reminderDaysBefore')) {
           <small class="field-error">{{ getFieldError('reminderDaysBefore') }}</small>
@@ -199,7 +199,7 @@
         </div>
 
         <div class="field-col">
-          <label for="nextPaymentDate">Proximo pagamento</label>
+          <label for="nextPaymentDate">Next payment date</label>
           <input pInputText id="nextPaymentDate" type="date" formControlName="nextPaymentDate" />
         </div>
       </div>
@@ -209,7 +209,7 @@
   <ng-template pTemplate="footer">
     <div class="dialog-footer">
       <button pButton pRipple type="button" class="secondary-btn" (click)="closeFormDialog()">
-        Cancelar
+        Cancel
       </button>
       <button pButton pRipple type="button" class="submit-btn" (click)="onSubmit()" [disabled]="submitLoading">
         {{ pageButtonLabel }}
@@ -229,20 +229,20 @@
   (onHide)="closeDeleteDialog()"
 >
   <ng-template pTemplate="header">
-    <h2 class="dialog-title">Confirmar exclusao</h2>
+    <h2 class="dialog-title">Confirm deletion</h2>
   </ng-template>
 
   <p class="dialog-description">
-    Tem certeza que deseja excluir <strong>{{ deletingSubscription?.name }}</strong>? Esta acao nao pode ser desfeita.
+    Are you sure you want to delete <strong>{{ deletingSubscription?.name }}</strong>? This action cannot be undone.
   </p>
 
   <ng-template pTemplate="footer">
     <div class="dialog-footer">
       <button pButton pRipple type="button" class="secondary-btn" (click)="closeDeleteDialog()" [disabled]="deleteLoading">
-        Cancelar
+        Cancel
       </button>
       <button pButton pRipple type="button" class="danger-btn" (click)="confirmDelete()" [disabled]="deleteLoading">
-        {{ deleteLoading ? 'Excluindo...' : 'Excluir inscricao' }}
+        {{ deleteLoading ? 'Deleting...' : 'Delete subscription' }}
       </button>
     </div>
   </ng-template>

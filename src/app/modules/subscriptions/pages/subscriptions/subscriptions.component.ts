@@ -49,21 +49,21 @@ export class SubscriptionsComponent {
   })
 
   billingCycleOptions: IBillingCycleOption[] = [
-    { value: 'MONTHLY', label: 'Mensal' },
-    { value: 'YEARLY', label: 'Anual' },
-    { value: 'WEEKLY', label: 'Semanal' },
-    { value: 'QUARTERLY', label: 'Trimestral' }
+    { value: 'MONTHLY', label: 'Monthly' },
+    { value: 'YEARLY', label: 'Yearly' },
+    { value: 'WEEKLY', label: 'Weekly' },
+    { value: 'QUARTERLY', label: 'Quarterly' }
   ]
 
   statusOptions: ISubscriptionStatusOption[] = [
-    { value: 'ACTIVE', label: 'Ativa' },
-    { value: 'CANCELED', label: 'Cancelada' }
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'CANCELED', label: 'Canceled' }
   ]
 
   statusFilterOptions = [
-    { label: 'Todos', value: 'ALL' },
-    { label: 'Ativas', value: 'ACTIVE' },
-    { label: 'Canceladas', value: 'CANCELED' }
+    { label: 'All', value: 'ALL' },
+    { label: 'Active', value: 'ACTIVE' },
+    { label: 'Canceled', value: 'CANCELED' }
   ]
 
   subscriptions: ISubscription[] = []
@@ -90,7 +90,7 @@ export class SubscriptionsComponent {
   async onSubmit() {
     if (this.subscriptionForm.invalid) {
       this.subscriptionForm.markAllAsTouched()
-      this.toast.error('Formulario invalido', 'Preencha os campos obrigatorios corretamente.')
+      this.toast.error('Invalid form', 'Please fill all required fields correctly.')
       return
     }
 
@@ -197,7 +197,7 @@ export class SubscriptionsComponent {
       return 'Salvando...'
     }
 
-    return this.editingSubscription ? 'Salvar alteracoes' : 'Adicionar inscricao'
+    return this.editingSubscription ? 'Save changes' : 'Add subscription'
   }
 
   get totalActiveSubscriptions() {
@@ -231,7 +231,7 @@ export class SubscriptionsComponent {
   }
 
   get formDialogTitle() {
-    return this.editingSubscription ? 'Editar inscricao' : 'Nova inscricao'
+    return this.editingSubscription ? 'Edit subscription' : 'New subscription'
   }
 
   clearFilters() {
@@ -252,14 +252,14 @@ export class SubscriptionsComponent {
     }
 
     if (control.errors['required']) {
-      return 'Este campo e obrigatorio.'
+      return 'This field is required.'
     }
 
     if (control.errors['min']) {
-      return 'Informe um valor valido.'
+      return 'Enter a valid value.'
     }
 
-    return 'Campo invalido.'
+    return 'Invalid field.'
   }
 
   private async createSubscription() {
@@ -271,7 +271,7 @@ export class SubscriptionsComponent {
     const payload = this.buildUpdatePayload(subscription)
 
     if (!Object.keys(payload).length) {
-      this.toast.info('Nenhuma alteracao detectada', 'Ajuste um campo para salvar alteracoes.')
+      this.toast.info('No changes detected', 'Update at least one field before saving.')
       return false
     }
 

@@ -20,20 +20,20 @@ export class HomeComponent {
   quickDirections = [
     {
       title: 'Customers',
-      detail: 'Gestao de contas, perfil de cliente e lifecycle operacional.',
-      status: 'Planejado',
+      detail: 'Account management, customer profile, and operational lifecycle.',
+      status: 'Planned',
       icon: 'pi-users'
     },
     {
       title: 'Plans',
-      detail: 'Catalogo de planos, regras comerciais e status de assinatura.',
-      status: 'Planejado',
+      detail: 'Plan catalog, commercial rules, and subscription status.',
+      status: 'Planned',
       icon: 'pi-tag'
     },
     {
       title: 'Billing',
-      detail: 'Cobranca, renovacoes, inadimplencia e conciliacao futura.',
-      status: 'Planejado',
+      detail: 'Billing, renewals, delinquency management, and future reconciliation.',
+      status: 'Planned',
       icon: 'pi-credit-card'
     }
   ]
@@ -45,7 +45,7 @@ export class HomeComponent {
   }
 
   get fullName() {
-    return this.userData?.user?.fullName || 'Usuario'
+    return this.userData?.user?.fullName || 'User'
   }
 
   get primaryRole() {

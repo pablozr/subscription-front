@@ -52,10 +52,10 @@ export class ForgetPasswordComponent implements OnInit {
           label: 'Email',
         },
         {
-          label: 'Código',
+          label: 'Code',
         },
         {
-          label: 'Nova Senha',
+          label: 'New Password',
         }
       ];
 
@@ -94,7 +94,7 @@ export class ForgetPasswordComponent implements OnInit {
         }
       } else{
         this.forgetPasswordEmailForm.markAllAsTouched();
-        this.toast.error('E-mail vazio', 'Preencha todos os campos antes de continuar.');
+        this.toast.error('Missing email', 'Fill in all required fields before continuing.');
         this.isInvalidEmail = true;
       }
     }
@@ -115,7 +115,7 @@ export class ForgetPasswordComponent implements OnInit {
           }
       } else{
         this.forgetPasswordHashForm.markAllAsTouched();
-        this.toast.error('Codigo vazio', 'Preencha todos os campos antes de continuar.');
+        this.toast.error('Missing code', 'Fill in all required fields before continuing.');
         this.isInvalidHash = true;
       }
     }
@@ -124,7 +124,7 @@ export class ForgetPasswordComponent implements OnInit {
       if (this.forgetPasswordNewPasswordForm.valid && this.userForgetPasswordId){
         const { newPassword, passwordConfirm } = this.forgetPasswordNewPasswordForm.value;
         if (newPassword !== passwordConfirm) {
-          this.toast.error('Senhas diferentes', 'A confirmacao deve ser igual a nova senha.');
+          this.toast.error('Passwords do not match', 'Confirmation must match the new password.');
           this.isInvalidPasswordConfirm = true;
           this.forgetPasswordNewPasswordForm.get('passwordConfirm')?.markAsTouched();
           return;
@@ -146,7 +146,7 @@ export class ForgetPasswordComponent implements OnInit {
         }
     } else{
       this.forgetPasswordNewPasswordForm.markAllAsTouched();
-      this.toast.error('Dados incompletos', 'Preencha todos os campos antes de continuar.');
+      this.toast.error('Incomplete data', 'Fill in all required fields before continuing.');
       this.isInvalidNewPassword = true;
       this.isInvalidPasswordConfirm = true;
       }
@@ -165,7 +165,7 @@ export class ForgetPasswordComponent implements OnInit {
       }
 
       if (control.errors['required']) {
-        return 'Este campo e obrigatorio.';
+        return 'This field is required.';
       }
 
       if (control.errors['email']) {
@@ -174,15 +174,15 @@ export class ForgetPasswordComponent implements OnInit {
 
       if (control.errors['minlength']) {
         const required = control.errors['minlength'].requiredLength;
-        return `Minimo de ${required} caracteres.`;
+        return `At least ${required} characters.`;
       }
 
       if (control.errors['maxlength']) {
         const required = control.errors['maxlength'].requiredLength;
-        return `Maximo de ${required} caracteres.`;
+        return `Up to ${required} characters.`;
       }
 
-      return 'Campo invalido.';
+      return 'Invalid field.';
     }
 
     get passwordsMismatch(): boolean {

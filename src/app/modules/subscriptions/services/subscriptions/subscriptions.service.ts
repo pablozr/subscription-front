@@ -16,7 +16,7 @@ export class SubscriptionsService {
 
   findAllSubscriptions() {
     return new Promise<ISubscription[]>((resolve) => {
-      this.http.get<any>(`${this.endpoint}/subscriptions/`, { withCredentials: true }).subscribe({
+      this.http.get<any>(`${this.endpoint}/subscriptions`, { withCredentials: true }).subscribe({
         next: (res) => {
           const source = Array.isArray(res)
             ? res
@@ -25,7 +25,7 @@ export class SubscriptionsService {
           resolve(data)
         },
         error: (err) => {
-          this.toast.error('Erro ao buscar inscricoes', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not load subscriptions', err.error?.detail || 'Please try again.')
           resolve([])
         }
       })
@@ -34,15 +34,15 @@ export class SubscriptionsService {
 
   createSubscription(data: ISubscriptionCreateRequest) {
     return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/subscriptions/`, data, { withCredentials: true }).subscribe({
+      this.http.post<any>(`${this.endpoint}/subscriptions`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res) {
-            this.toast.success('Inscricao criada', 'Sua inscricao foi adicionada com sucesso.')
+            this.toast.success('Subscription created', 'Your subscription was added successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao criar inscricao', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not create subscription', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -54,12 +54,12 @@ export class SubscriptionsService {
       this.http.put<any>(`${this.endpoint}/subscriptions/${subscriptionId}`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res) {
-            this.toast.success('Inscricao atualizada', 'As alteracoes foram salvas com sucesso.')
+            this.toast.success('Subscription updated', 'Changes were saved successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao atualizar inscricao', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not update subscription', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -71,12 +71,12 @@ export class SubscriptionsService {
       this.http.patch<any>(`${this.endpoint}/subscriptions/${subscriptionId}/cancel`, {}, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res) {
-            this.toast.success('Inscricao cancelada', 'A inscricao foi cancelada com sucesso.')
+            this.toast.success('Subscription canceled', 'The subscription was canceled successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao cancelar inscricao', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not cancel subscription', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -88,12 +88,12 @@ export class SubscriptionsService {
       this.http.delete<any>(`${this.endpoint}/subscriptions/${subscriptionId}`, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res) {
-            this.toast.success('Inscricao excluida', 'A inscricao foi removida com sucesso.')
+            this.toast.success('Subscription deleted', 'The subscription was removed successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao excluir inscricao', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not delete subscription', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -103,7 +103,7 @@ export class SubscriptionsService {
   private normalizeSubscription(data: any): ISubscription {
     return {
       id: data?.id ?? data?.subscriptionId ?? data?._id ?? 0,
-      name: data?.name ?? 'Sem nome',
+      name: data?.name ?? 'Untitled subscription',
       price: Number(data?.price ?? 0),
       billingCycle: data?.billingCycle ?? data?.billing_cycle ?? 'MONTHLY',
       status: data?.status ?? 'ACTIVE',

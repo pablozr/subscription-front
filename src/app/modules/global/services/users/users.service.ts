@@ -55,7 +55,7 @@ export class UsersService {
   register(data: IRegisterRequest) {
     const payload = this.buildRegisterPayload(data)
     return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/users/`, payload, { withCredentials: true }).subscribe({
+      this.http.post<any>(`${this.endpoint}/users`, payload, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
             this.toast.success('Account created', 'Your account was created successfully.')
@@ -126,12 +126,12 @@ export class UsersService {
       this.http.post<any>(`${this.endpoint}/auth/forget-password`, data).subscribe({
         next: (res) => {
           if (res?.message) {
-            this.toast.success('E-mail enviado', res.message)
+            this.toast.success('Email sent', res.message)
           }
           resolve(res)
         },
         error: (err) => {
-          this.toast.error('Erro ao enviar e-mail', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not send email', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -143,15 +143,15 @@ export class UsersService {
       this.http.post<any>(`${this.endpoint}/auth/validate-code`, data).subscribe({
         next: (res) => {
           if (res?.validated || res?.isValid || res?.userId || res?.message) {
-            this.toast.success('Codigo validado', 'Codigo de confirmacao validado.')
+            this.toast.success('Code validated', 'Your confirmation code is valid.')
             resolve(true)
           } else {
-            this.toast.error('Codigo invalido', 'O codigo informado e invalido ou expirou.')
+            this.toast.error('Invalid code', 'The code is invalid or expired.')
             resolve(false)
           }
         },
         error: (err) => {
-          this.toast.error('Codigo invalido', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Invalid code', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -163,15 +163,15 @@ export class UsersService {
       this.http.post<any>(`${this.endpoint}/auth/update-password`, { ...data, userId }).subscribe({
         next: (res) => {
           if (res?.message) {
-            this.toast.success('Senha alterada', 'A senha foi redefinida com sucesso.')
+            this.toast.success('Password updated', 'Your password was reset successfully.')
             resolve(true)
           } else {
-            this.toast.error('Erro ao alterar senha', 'Ocorreu um erro durante a alteracao.')
+            this.toast.error('Could not update password', 'An error occurred while changing your password.')
             resolve(false)
           }
         },
         error: (err) => {
-          this.toast.error('Erro ao alterar senha', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not update password', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -182,10 +182,10 @@ export class UsersService {
 
   findAllUsers() {
     return new Promise<IUser[]>((resolve) => {
-      this.http.get<any>(`${this.endpoint}/users/`, { withCredentials: true }).subscribe({
+      this.http.get<any>(`${this.endpoint}/users`, { withCredentials: true }).subscribe({
         next: (data) => resolve(data || []),
         error: (err) => {
-          this.toast.error('Erro ao buscar usuarios', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not load users', err.error?.detail || 'Please try again.')
           resolve([])
         }
       })
@@ -197,7 +197,7 @@ export class UsersService {
       this.http.get<IUser>(`${this.endpoint}/users/${userId}`, { withCredentials: true }).subscribe({
         next: (data) => resolve(data || null),
         error: (err) => {
-          this.toast.error('Erro ao buscar usuario', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not load user', err.error?.detail || 'Please try again.')
           resolve(null)
         }
       })
@@ -206,15 +206,15 @@ export class UsersService {
 
   createUser(data: any) {
     return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/users/`, data, { withCredentials: true }).subscribe({
+      this.http.post<any>(`${this.endpoint}/users`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
-            this.toast.success('Usuario criado', 'O usuario foi criado com sucesso.')
+            this.toast.success('User created', 'The user account was created successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao criar usuario', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not create user', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -226,12 +226,12 @@ export class UsersService {
       this.http.put<any>(`${this.endpoint}/users/me`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res) {
-            this.toast.success('Dados alterados', 'As informacoes foram alteradas com sucesso.')
+            this.toast.success('Profile updated', 'Your information was updated successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao alterar dados', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not update profile', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -243,12 +243,12 @@ export class UsersService {
       this.http.delete<any>(`${this.endpoint}/users/${userId}`, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
-            this.toast.success('Usuario excluido', 'O usuario foi excluido com sucesso.')
+            this.toast.success('User deleted', 'The user was deleted successfully.')
           }
           resolve(!!res)
         },
         error: (err) => {
-          this.toast.error('Erro ao excluir usuario', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not delete user', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })
@@ -260,12 +260,12 @@ export class UsersService {
       this.http.post<any>(`${this.endpoint}/auth/update-password`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
-            this.toast.success('Senha alterada', res.message)
+            this.toast.success('Password updated', res.message)
           }
           resolve(!!res?.message)
         },
         error: (err) => {
-          this.toast.error('Erro ao alterar senha', err.error?.detail || 'Tente novamente.')
+          this.toast.error('Could not update password', err.error?.detail || 'Please try again.')
           resolve(false)
         }
       })

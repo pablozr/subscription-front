@@ -63,14 +63,14 @@ export class SigninComponent implements OnInit {
     }
 
     if (control.errors['required']) {
-      return 'Este campo e obrigatorio.'
+      return 'This field is required.'
     }
 
     if (control.errors['email']) {
       return 'Informe um e-mail valido.'
     }
 
-    return 'Campo invalido.'
+    return 'Invalid field.'
   }
 
   navigateTo(route: string) {

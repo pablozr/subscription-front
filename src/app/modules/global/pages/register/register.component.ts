@@ -74,7 +74,7 @@ export class RegisterComponent implements OnInit {
     }
 
     if (control.errors['required']) {
-      return 'Este campo e obrigatorio.'
+      return 'This field is required.'
     }
 
     if (control.errors['email']) {
@@ -83,10 +83,10 @@ export class RegisterComponent implements OnInit {
 
     if (control.errors['minlength']) {
       const required = control.errors['minlength'].requiredLength
-      return `Minimo de ${required} caracteres.`
+      return `At least ${required} characters.`
     }
 
-    return 'Campo invalido.'
+    return 'Invalid field.'
   }
 
   get passwordMismatch() {

@@ -19,7 +19,7 @@
             </div>
           </div>
 
-          <button type="button" class="close-button" (click)="customClose()" aria-label="Fechar menu lateral">
+          <button type="button" class="close-button" (click)="customClose()" aria-label="Close sidebar menu">
             <i class="pi pi-times"></i>
           </button>
         </div>
@@ -39,7 +39,7 @@
                             <span class="sidebar-link__icon"><i [class]="childrenRoute.class"></i></span>
                             <span class="sidebar-link__content">
                               <strong>{{ childrenRoute.label }}</strong>
-                              <small>Area principal do modulo</small>
+                              <small>Main module area</small>
                             </span>
                           </button>
 
@@ -61,7 +61,7 @@
                           <span class="sidebar-link__icon"><i [class]="childrenRoute.class"></i></span>
                           <span class="sidebar-link__content">
                             <strong>{{ childrenRoute.label }}</strong>
-                            <small>Entrada principal do produto</small>
+                            <small>Main product entry point</small>
                           </span>
                         </button>
                       }
@@ -75,9 +75,9 @@
 
         <div class="sidebar-footer">
           <div class="sidebar-account">
-            <p-avatar [image]="`https://ui-avatars.com/api/?name=${userData?.user?.fullName || 'Usuario'}&background=7c3aed&color=FFF&size=128&bold=true`" shape="circle" />
+            <p-avatar [image]="`https://ui-avatars.com/api/?name=${userData?.user?.fullName || 'User'}&background=7c3aed&color=FFF&size=128&bold=true`" shape="circle" />
             <div>
-              <p>{{ userData?.user?.fullName || 'Usuario' }}</p>
+              <p>{{ userData?.user?.fullName || 'User' }}</p>
               <span>{{ userData?.user?.role || 'BASIC' }}</span>
             </div>
           </div>
@@ -86,7 +86,7 @@
             <app-button-theme></app-button-theme>
             <button type="button" class="logout-button" (click)="logout()">
               <i class="pi pi-sign-out"></i>
-              <span>Sair</span>
+              <span>Logout</span>
             </button>
           </div>
         </div>
@@ -94,7 +94,7 @@
     </ng-template>
   </p-drawer>
 
-  <button type="button" class="sidebar-trigger" (click)="sidebarVisible = true" aria-label="Abrir menu lateral">
+  <button type="button" class="sidebar-trigger" (click)="sidebarVisible = true" aria-label="Open sidebar menu">
     <i class="pi pi-bars"></i>
   </button>
 </div>

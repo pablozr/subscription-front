@@ -9,7 +9,7 @@
           <div class="brand-copy">
             <span class="brand-copy__eyebrow">Subscription manager</span>
             <strong>Control Center</strong>
-            <small class="brand-copy__support">Clientes, planos e cobranca em um unico workspace.</small>
+            <small class="brand-copy__support">Customers, plans, and billing in one workspace.</small>
           </div>
         </div>
       </div>
@@ -18,7 +18,7 @@
     <ng-template pTemplate="end">
       <div class="header-end">
         <div class="header-context">
-          <span class="header-context__eyebrow">Area atual</span>
+          <span class="header-context__eyebrow">Current area</span>
           <strong>Overview</strong>
         </div>
 
@@ -26,12 +26,12 @@
 
         <div class="profile-chip">
           <div class="profile-chip__copy">
-            <span class="profile-chip__eyebrow">Conta ativa</span>
+            <span class="profile-chip__eyebrow">Active account</span>
             <strong>{{ fullName }}</strong>
           </div>
 
           <p-avatar
-            [image]="'https://ui-avatars.com/api/?name=' + (userData?.user?.fullName || 'Usuario') + '&background=7c3aed&color=FFF&size=128&bold=true'"
+            [image]="'https://ui-avatars.com/api/?name=' + (userData?.user?.fullName || 'User') + '&background=7c3aed&color=FFF&size=128&bold=true'"
             shape="circle"
             [size]="'large'"
           />

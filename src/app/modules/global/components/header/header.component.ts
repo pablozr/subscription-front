@@ -31,6 +31,6 @@ export class HeaderComponent {
   }
 
   get fullName() {
-    return this.userData?.user?.fullName || 'Usuario'
+    return this.userData?.user?.fullName || 'User'
   }
 }

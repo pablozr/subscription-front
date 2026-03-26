@@ -68,7 +68,7 @@
               @if (isFieldInvalid('confirmPassword')) {
                 <small class="field-error">{{ getFieldError('confirmPassword') }}</small>
               } @else if (passwordMismatch) {
-                <small class="field-error">As senhas precisam ser iguais.</small>
+                <small class="field-error">Passwords must match.</small>
               }
             </div>
           </div>
