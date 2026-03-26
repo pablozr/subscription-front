@@ -85,21 +85,19 @@ export class SidebarComponent implements OnInit {
   }
 
   canAccess(rolesCanAccess: string[]): boolean {
-    if (!rolesCanAccess?.length) return false;
+    if (!rolesCanAccess?.length) return false
 
-    if (rolesCanAccess.includes('ALL')) return true;
+    if (rolesCanAccess.includes('ALL')) return true
 
-    return this.userData?.user?.roles?.some((pr: any) =>
-      rolesCanAccess.includes(pr.role)
-    ) ?? false;
+    const userRole = this.userData?.user?.role
+    return !!userRole && rolesCanAccess.includes(userRole)
   }
 
   canAccessRoute(routeRoles: string[]): boolean {
-    if (routeRoles.includes('ALL')) return true;
+    if (routeRoles.includes('ALL')) return true
 
-    return this.userData?.user?.roles?.some((pr: any) =>
-      routeRoles.includes(pr.role)
-    ) ?? false;
+    const userRole = this.userData?.user?.role
+    return !!userRole && routeRoles.includes(userRole)
   }
 
   customClose() {

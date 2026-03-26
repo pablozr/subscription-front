@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core'
-import { InputTextModule } from 'primeng/inputtext'
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'
+import { InputTextModule } from 'primeng/inputtext'
 import { ButtonModule } from 'primeng/button'
 import { Router } from '@angular/router'
 import { CommonModule } from '@angular/common'
@@ -25,7 +25,6 @@ export class SigninComponent implements OnInit {
 
   isLoading = false
   loginForm!: FormGroup
-  isInvalid = false
   visiblePassword = false
 
   ngOnInit() {
@@ -37,18 +36,41 @@ export class SigninComponent implements OnInit {
 
   async onSubmit() {
     if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched()
       this.toast.error('Incomplete form', 'Enter a valid email and password.')
       return
     }
+
     this.isLoading = true
     const response = await this.usersServices.signin(this.loginForm.value)
-    this.isInvalid = true
     this.isLoading = false
 
     if (response) {
-      this.isInvalid = false
       this.router.navigate(['/home'])
     }
+  }
+
+  isFieldInvalid(fieldName: string) {
+    const control = this.loginForm.get(fieldName)
+    return !!control && control.invalid && (control.touched || control.dirty)
+  }
+
+  getFieldError(fieldName: string) {
+    const control = this.loginForm.get(fieldName)
+
+    if (!control?.errors) {
+      return ''
+    }
+
+    if (control.errors['required']) {
+      return 'Este campo e obrigatorio.'
+    }
+
+    if (control.errors['email']) {
+      return 'Informe um e-mail valido.'
+    }
+
+    return 'Campo invalido.'
   }
 
   navigateTo(route: string) {

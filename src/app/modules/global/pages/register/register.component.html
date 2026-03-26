@@ -32,30 +32,44 @@
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="container-register">
           <div class="field">
             <label for="fullName">Full name</label>
-            <input pInputText id="fullName" formControlName="fullName" type="text" autocomplete="name" placeholder="Jane Doe" [ngClass]="{'input-invalid': isInvalid && registerForm.get('fullName')?.invalid}" />
+            <input pInputText id="fullName" formControlName="fullName" type="text" autocomplete="name" placeholder="Jane Doe" [ngClass]="{'input-invalid': isFieldInvalid('fullName')}" />
+            @if (isFieldInvalid('fullName')) {
+              <small class="field-error">{{ getFieldError('fullName') }}</small>
+            }
           </div>
           <div class="field">
             <label for="email">Email</label>
-            <input pInputText id="email" formControlName="email" type="email" autocomplete="email" placeholder="you@company.com" [ngClass]="{'input-invalid': isInvalid && registerForm.get('email')?.invalid}" />
+            <input pInputText id="email" formControlName="email" type="email" autocomplete="email" placeholder="you@company.com" [ngClass]="{'input-invalid': isFieldInvalid('email')}" />
+            @if (isFieldInvalid('email')) {
+              <small class="field-error">{{ getFieldError('email') }}</small>
+            }
           </div>
           <div class="field-row">
             <div class="field">
               <label for="password">Password</label>
               <div class="password-wrapper">
-                <input pInputText id="password" formControlName="password" [type]="visiblePassword ? 'text' : 'password'" autocomplete="new-password" placeholder="••••••••" [ngClass]="{'input-invalid': isInvalid && registerForm.get('password')?.invalid}" />
+                <input pInputText id="password" formControlName="password" [type]="visiblePassword ? 'text' : 'password'" autocomplete="new-password" placeholder="••••••••" [ngClass]="{'input-invalid': isFieldInvalid('password')}" />
                 <button type="button" class="eye-btn" (click)="togglePassword()">
                   <i [class]="visiblePassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
                 </button>
               </div>
+              @if (isFieldInvalid('password')) {
+                <small class="field-error">{{ getFieldError('password') }}</small>
+              }
             </div>
             <div class="field">
               <label for="confirmPassword">Confirm password</label>
               <div class="password-wrapper">
-                <input pInputText id="confirmPassword" formControlName="confirmPassword" [type]="visibleConfirm ? 'text' : 'password'" autocomplete="new-password" placeholder="••••••••" [ngClass]="{'input-invalid': isInvalid && registerForm.get('confirmPassword')?.invalid}" />
+                <input pInputText id="confirmPassword" formControlName="confirmPassword" [type]="visibleConfirm ? 'text' : 'password'" autocomplete="new-password" placeholder="••••••••" [ngClass]="{'input-invalid': isFieldInvalid('confirmPassword') || passwordMismatch}" />
                 <button type="button" class="eye-btn" (click)="toggleConfirm()">
                   <i [class]="visibleConfirm ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
                 </button>
               </div>
+              @if (isFieldInvalid('confirmPassword')) {
+                <small class="field-error">{{ getFieldError('confirmPassword') }}</small>
+              } @else if (passwordMismatch) {
+                <small class="field-error">As senhas precisam ser iguais.</small>
+              }
             </div>
           </div>
           <button pButton pRipple type="submit" class="submit-btn">

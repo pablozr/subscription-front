@@ -75,10 +75,10 @@
 
         <div class="sidebar-footer">
           <div class="sidebar-account">
-            <p-avatar [image]="`https://ui-avatars.com/api/?name=${userData?.user?.firstName}+${userData?.user?.lastName}&background=7c3aed&color=FFF&size=128&bold=true`" shape="circle" />
+            <p-avatar [image]="`https://ui-avatars.com/api/?name=${userData?.user?.fullName || 'Usuario'}&background=7c3aed&color=FFF&size=128&bold=true`" shape="circle" />
             <div>
-              <p>{{userData?.user?.firstName}} {{userData?.user?.lastName}}</p>
-              <span>{{ userData?.user?.roles?.[0] || 'MEMBRO' }}</span>
+              <p>{{ userData?.user?.fullName || 'Usuario' }}</p>
+              <span>{{ userData?.user?.role || 'BASIC' }}</span>
             </div>
           </div>
 

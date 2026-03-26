@@ -12,11 +12,9 @@ export interface ISigninData {
   user: {
     accessId: number;
     email: string;
-    username: string;
-    firstName: string;
-    lastName: string;
+    fullName: string;
     active: boolean;
-    roles: string[];
+    role: 'BASIC' | 'ADMIN';
   }
 }
 

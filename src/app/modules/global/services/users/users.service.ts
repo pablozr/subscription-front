@@ -7,7 +7,7 @@ import { IRegisterRequest, ISigninData, ISigninRequest } from '../../interfaces/
 import { IUser } from '../../interfaces/IUser'
 import { StorageService } from '../local-storage/storage.service'
 
-const API_URL = 'http://localhost:5685'
+const API_URL = 'http://localhost:8000'
 
 @Injectable({
   providedIn: 'root'
@@ -71,16 +71,9 @@ export class UsersService {
   }
 
   private buildRegisterPayload(data: IRegisterRequest) {
-    const name = data.fullName.trim().replace(/\s+/g, ' ')
-    const spaceIdx = name.indexOf(' ')
-    const firstName = spaceIdx === -1 ? name : name.slice(0, spaceIdx)
-    const lastName = spaceIdx === -1 ? firstName : name.slice(spaceIdx + 1).trim()
-    const local = data.email.split('@')[0] ?? 'user'
-    const username = local.replace(/[^a-zA-Z0-9._-]/g, '') || 'user'
+    const fullName = data.fullName.trim().replace(/\s+/g, ' ')
     return {
-      firstName,
-      lastName,
-      username,
+      fullName,
       email: data.email.trim(),
       password: data.password
     }
@@ -280,21 +273,21 @@ export class UsersService {
   }
 
   private extractUserData(data: any): ISigninData | null {
-    const source = data?.data ?? data
+    const source = data?.data?.user ?? data?.user ?? data?.data ?? data
 
-    if (!source?.user) {
+    if (!source) {
       return null
     }
 
+    const role = source.role === 'ADMIN' ? 'ADMIN' : 'BASIC'
+
     return {
       user: {
-        accessId: Number(source.user.accessId ?? source.user.id ?? 0),
-        email: source.user.email ?? '',
-        username: source.user.username ?? source.user.email ?? '',
-        firstName: source.user.firstName ?? source.user.first_name ?? '',
-        lastName: source.user.lastName ?? source.user.last_name ?? '',
-        active: source.user.active ?? true,
-        roles: source.user.roles ?? ['USER']
+        accessId: Number(source.userId ?? source.id ?? source.accessId ?? 0),
+        email: source.email ?? '',
+        fullName: source.fullName ?? source.fullname ?? '',
+        active: source.active ?? true,
+        role
       }
     }
   }

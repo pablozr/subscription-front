@@ -32,7 +32,10 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="container-login">
           <div class="field">
             <label for="email">Email</label>
-            <input pInputText id="email" formControlName="email" type="email" autocomplete="email" placeholder="you@company.com" [ngClass]="{'input-invalid': isInvalid}" />
+            <input pInputText id="email" formControlName="email" type="email" autocomplete="email" placeholder="you@company.com" [ngClass]="{'input-invalid': isFieldInvalid('email')}" />
+            @if (isFieldInvalid('email')) {
+              <small class="field-error">{{ getFieldError('email') }}</small>
+            }
           </div>
           <div class="field">
             <div class="label-row">
@@ -40,11 +43,14 @@
               <a class="forgot-link" (click)="navigateTo('forget-password')">Forgot?</a>
             </div>
             <div class="password-wrapper">
-              <input pInputText id="password" formControlName="password" [type]="visiblePassword ? 'text' : 'password'" autocomplete="current-password" placeholder="••••••••" [ngClass]="{'input-invalid': isInvalid}" />
+              <input pInputText id="password" formControlName="password" [type]="visiblePassword ? 'text' : 'password'" autocomplete="current-password" placeholder="••••••••" [ngClass]="{'input-invalid': isFieldInvalid('password')}" />
               <button type="button" class="eye-btn" (click)="togglePassword()">
                 <i [class]="visiblePassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
               </button>
             </div>
+            @if (isFieldInvalid('password')) {
+              <small class="field-error">{{ getFieldError('password') }}</small>
+            }
           </div>
           <button pButton pRipple type="submit" class="submit-btn glow-btn">
             <span>Sign in</span>

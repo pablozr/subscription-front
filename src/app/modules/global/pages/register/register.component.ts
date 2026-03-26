@@ -25,7 +25,6 @@ export class RegisterComponent implements OnInit {
 
   registerForm!: FormGroup
   isLoading = false
-  isInvalid = false
   visiblePassword = false
   visibleConfirm = false
 
@@ -40,7 +39,7 @@ export class RegisterComponent implements OnInit {
 
   async onSubmit() {
     if (this.registerForm.invalid) {
-      this.isInvalid = true
+      this.registerForm.markAllAsTouched()
       this.toast.error('Incomplete form', 'Please fill in all fields correctly.')
       return
     }
@@ -48,6 +47,7 @@ export class RegisterComponent implements OnInit {
     const { confirmPassword, ...data } = this.registerForm.value
 
     if (data.password !== confirmPassword) {
+      this.registerForm.get('confirmPassword')?.markAsTouched()
       this.toast.error('Passwords do not match', 'Enter the same password in both fields.')
       return
     }
@@ -58,9 +58,50 @@ export class RegisterComponent implements OnInit {
 
     if (success) {
       this.router.navigate(['/signin'])
-    } else {
-      this.isInvalid = true
     }
+  }
+
+  isFieldInvalid(fieldName: string) {
+    const control = this.registerForm.get(fieldName)
+    return !!control && control.invalid && (control.touched || control.dirty)
+  }
+
+  getFieldError(fieldName: string) {
+    const control = this.registerForm.get(fieldName)
+
+    if (!control?.errors) {
+      return ''
+    }
+
+    if (control.errors['required']) {
+      return 'Este campo e obrigatorio.'
+    }
+
+    if (control.errors['email']) {
+      return 'Informe um e-mail valido.'
+    }
+
+    if (control.errors['minlength']) {
+      const required = control.errors['minlength'].requiredLength
+      return `Minimo de ${required} caracteres.`
+    }
+
+    return 'Campo invalido.'
+  }
+
+  get passwordMismatch() {
+    const password = this.registerForm.get('password')?.value
+    const confirmPasswordControl = this.registerForm.get('confirmPassword')
+    const confirmPassword = confirmPasswordControl?.value
+
+    if (!confirmPasswordControl) {
+      return false
+    }
+
+    return !!password
+      && !!confirmPassword
+      && password !== confirmPassword
+      && (confirmPasswordControl.touched || confirmPasswordControl.dirty)
   }
 
   navigateTo(route: string) {

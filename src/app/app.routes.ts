@@ -25,12 +25,12 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./modules/global/pages/home/home.component').then(m => m.HomeComponent),
-
+    canActivate: [AuthService]
   },
   {
     path: 'subscriptions',
     loadComponent: () => import('./modules/subscriptions/pages/subscriptions/subscriptions.component').then(m => m.SubscriptionsComponent),
-    
+    canActivate: [AuthService]
   },
   {
     path: '**',

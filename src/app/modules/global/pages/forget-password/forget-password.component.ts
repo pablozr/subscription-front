@@ -60,15 +60,15 @@ export class ForgetPasswordComponent implements OnInit {
       ];
 
       this.forgetPasswordEmailForm = new FormGroup({
-        email: new FormControl('', [Validators.required]),
+        email: new FormControl('', [Validators.required, Validators.email]),
       })
 
       this.forgetPasswordHashForm = new FormGroup({
-        hash: new FormControl('', [Validators.required]),
+        hash: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]),
       })
 
       this.forgetPasswordNewPasswordForm = new FormGroup({
-        newPassword: new FormControl('', [Validators.required]),
+        newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
         passwordConfirm: new FormControl('', [Validators.required])
       })
     }
@@ -78,7 +78,7 @@ export class ForgetPasswordComponent implements OnInit {
     }
 
     async onSubmitEmail(){
-      if (this.forgetPasswordEmailForm.value.email){
+      if (this.forgetPasswordEmailForm.valid){
         this.isLoading = true;
 
         const validation = await this.usersServices.sendEmailForgetPassword(this.forgetPasswordEmailForm.value);
@@ -93,13 +93,14 @@ export class ForgetPasswordComponent implements OnInit {
           this.isInvalidEmail = true;
         }
       } else{
+        this.forgetPasswordEmailForm.markAllAsTouched();
         this.toast.error('E-mail vazio', 'Preencha todos os campos antes de continuar.');
         this.isInvalidEmail = true;
       }
     }
 
     async onSubmitHashCode(){
-      if (this.forgetPasswordHashForm.value.hash){
+      if (this.forgetPasswordHashForm.valid){
         this.isLoading = true;
 
         const validation = await this.usersServices.validateHashCode({hash: this.forgetPasswordHashForm.value.hash, userId: this.userForgetPasswordId});
@@ -113,13 +114,22 @@ export class ForgetPasswordComponent implements OnInit {
             this.isInvalidHash = true;
           }
       } else{
+        this.forgetPasswordHashForm.markAllAsTouched();
         this.toast.error('Codigo vazio', 'Preencha todos os campos antes de continuar.');
         this.isInvalidHash = true;
       }
     }
 
     async onSubmitNewPassword(){
-      if (this.forgetPasswordNewPasswordForm.value.newPassword && this.forgetPasswordNewPasswordForm.value.passwordConfirm && this.userForgetPasswordId){
+      if (this.forgetPasswordNewPasswordForm.valid && this.userForgetPasswordId){
+        const { newPassword, passwordConfirm } = this.forgetPasswordNewPasswordForm.value;
+        if (newPassword !== passwordConfirm) {
+          this.toast.error('Senhas diferentes', 'A confirmacao deve ser igual a nova senha.');
+          this.isInvalidPasswordConfirm = true;
+          this.forgetPasswordNewPasswordForm.get('passwordConfirm')?.markAsTouched();
+          return;
+        }
+
         this.isLoading = true;
 
         const validation = await this.usersServices.editPasswordWithOutOldPassword(this.userForgetPasswordId, {...this.forgetPasswordNewPasswordForm.value});
@@ -135,9 +145,51 @@ export class ForgetPasswordComponent implements OnInit {
           this.isInvalidPasswordConfirm = true;
         }
     } else{
+      this.forgetPasswordNewPasswordForm.markAllAsTouched();
       this.toast.error('Dados incompletos', 'Preencha todos os campos antes de continuar.');
       this.isInvalidNewPassword = true;
       this.isInvalidPasswordConfirm = true;
       }
+    }
+
+    isControlInvalid(form: FormGroup, fieldName: string): boolean {
+      const control = form.get(fieldName);
+      return !!control && control.invalid && (control.touched || control.dirty);
+    }
+
+    getControlError(form: FormGroup, fieldName: string): string {
+      const control = form.get(fieldName);
+
+      if (!control?.errors) {
+        return '';
+      }
+
+      if (control.errors['required']) {
+        return 'Este campo e obrigatorio.';
+      }
+
+      if (control.errors['email']) {
+        return 'Informe um e-mail valido.';
+      }
+
+      if (control.errors['minlength']) {
+        const required = control.errors['minlength'].requiredLength;
+        return `Minimo de ${required} caracteres.`;
+      }
+
+      if (control.errors['maxlength']) {
+        const required = control.errors['maxlength'].requiredLength;
+        return `Maximo de ${required} caracteres.`;
+      }
+
+      return 'Campo invalido.';
+    }
+
+    get passwordsMismatch(): boolean {
+      const password = this.forgetPasswordNewPasswordForm?.get('newPassword')?.value;
+      const confirmControl = this.forgetPasswordNewPasswordForm?.get('passwordConfirm');
+      const confirmPassword = confirmControl?.value;
+
+      return !!password && !!confirmPassword && password !== confirmPassword && !!confirmControl && (confirmControl.touched || confirmControl.dirty);
     }
 }

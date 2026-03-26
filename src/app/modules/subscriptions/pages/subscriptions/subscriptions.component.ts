@@ -57,14 +57,12 @@ export class SubscriptionsComponent {
 
   statusOptions: ISubscriptionStatusOption[] = [
     { value: 'ACTIVE', label: 'Ativa' },
-    { value: 'PAUSED', label: 'Pausada' },
     { value: 'CANCELED', label: 'Cancelada' }
   ]
 
   statusFilterOptions = [
     { label: 'Todos', value: 'ALL' },
     { label: 'Ativas', value: 'ACTIVE' },
-    { label: 'Pausadas', value: 'PAUSED' },
     { label: 'Canceladas', value: 'CANCELED' }
   ]
 
@@ -74,7 +72,6 @@ export class SubscriptionsComponent {
   loading = true
   submitLoading = false
   deleteLoading = false
-  isInvalid = false
   formDialogVisible = false
   deleteDialogVisible = false
   editingSubscription: ISubscription | null = null
@@ -91,10 +88,8 @@ export class SubscriptionsComponent {
   }
 
   async onSubmit() {
-    this.isInvalid = false
-
     if (this.subscriptionForm.invalid) {
-      this.isInvalid = true
+      this.subscriptionForm.markAllAsTouched()
       this.toast.error('Formulario invalido', 'Preencha os campos obrigatorios corretamente.')
       return
     }
@@ -118,7 +113,6 @@ export class SubscriptionsComponent {
   openCreateDialog() {
     this.formDialogVisible = true
     this.editingSubscription = null
-    this.isInvalid = false
     this.subscriptionForm.patchValue({
       name: '',
       price: null,
@@ -133,7 +127,6 @@ export class SubscriptionsComponent {
   startEdit(subscription: ISubscription) {
     this.formDialogVisible = true
     this.editingSubscription = subscription
-    this.isInvalid = false
 
     this.subscriptionForm.patchValue({
       name: subscription.name,
@@ -149,7 +142,6 @@ export class SubscriptionsComponent {
   closeFormDialog() {
     this.formDialogVisible = false
     this.editingSubscription = null
-    this.isInvalid = false
     this.submitLoading = false
     this.subscriptionForm.patchValue({
       name: '',
@@ -245,6 +237,29 @@ export class SubscriptionsComponent {
   clearFilters() {
     this.searchTerm = ''
     this.statusFilter = 'ALL'
+  }
+
+  isFieldInvalid(fieldName: string) {
+    const control = this.subscriptionForm.get(fieldName)
+    return !!control && control.invalid && (control.touched || control.dirty)
+  }
+
+  getFieldError(fieldName: string) {
+    const control = this.subscriptionForm.get(fieldName)
+
+    if (!control?.errors) {
+      return ''
+    }
+
+    if (control.errors['required']) {
+      return 'Este campo e obrigatorio.'
+    }
+
+    if (control.errors['min']) {
+      return 'Informe um valor valido.'
+    }
+
+    return 'Campo invalido.'
   }
 
   private async createSubscription() {

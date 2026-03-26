@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core'
 import { AppToastService } from '../../../global/services/toast/app-toast.service'
 import { ISubscription, ISubscriptionCreateRequest, ISubscriptionUpdateRequest } from '../../interfaces/ISubscription'
 
-const API_URL = 'http://localhost:5685'
+const API_URL = 'http://localhost:8000'
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,9 @@ export class SubscriptionsService {
     return new Promise<ISubscription[]>((resolve) => {
       this.http.get<any>(`${this.endpoint}/subscriptions/`, { withCredentials: true }).subscribe({
         next: (res) => {
-          const source = Array.isArray(res) ? res : (res?.data ?? [])
+          const source = Array.isArray(res)
+            ? res
+            : (res?.data?.subscriptions ?? res?.data ?? [])
           const data = Array.isArray(source) ? source.map((item) => this.normalizeSubscription(item)) : []
           resolve(data)
         },

@@ -102,7 +102,7 @@
                   <span>Proximo: {{ subscription.nextPaymentDate | date: 'dd/MM/yyyy' }}</span>
                 }
                 <span>Lembrete: {{ subscription.reminderDaysBefore }} dia(s) antes</span>
-                <span class="status-pill" [class.status-pill--paused]="subscription.status === 'PAUSED'" [class.status-pill--canceled]="subscription.status === 'CANCELED'">
+                <span class="status-pill" [class.status-pill--canceled]="subscription.status === 'CANCELED'">
                   {{ subscription.status }}
                 </span>
               </div>
@@ -142,33 +142,48 @@
 
   <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()" class="subscription-form">
     <label for="name">Nome</label>
-    <input pInputText id="name" type="text" formControlName="name" placeholder="Ex.: Netflix" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('name')?.invalid }" />
+    <input pInputText id="name" type="text" formControlName="name" placeholder="Ex.: Netflix" [ngClass]="{ 'input-invalid': isFieldInvalid('name') }" />
+    @if (isFieldInvalid('name')) {
+      <small class="field-error">{{ getFieldError('name') }}</small>
+    }
 
     <div class="grid-two">
       <div class="field-col">
         <label for="price">Preco</label>
-        <input pInputText id="price" type="number" min="0" step="0.01" formControlName="price" placeholder="0.00" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('price')?.invalid }" />
+        <input pInputText id="price" type="number" min="0" step="0.01" formControlName="price" placeholder="0.00" [ngClass]="{ 'input-invalid': isFieldInvalid('price') }" />
+        @if (isFieldInvalid('price')) {
+          <small class="field-error">{{ getFieldError('price') }}</small>
+        }
       </div>
 
       <div class="field-col">
         <label for="billingCycle">Ciclo</label>
-        <select id="billingCycle" formControlName="billingCycle" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('billingCycle')?.invalid }">
+        <select id="billingCycle" formControlName="billingCycle" [ngClass]="{ 'input-invalid': isFieldInvalid('billingCycle') }">
           @for (option of billingCycleOptions; track option.value) {
             <option [value]="option.value">{{ option.label }}</option>
           }
         </select>
+        @if (isFieldInvalid('billingCycle')) {
+          <small class="field-error">{{ getFieldError('billingCycle') }}</small>
+        }
       </div>
     </div>
 
     <div class="grid-two">
       <div class="field-col">
         <label for="startDate">Data de inicio</label>
-        <input pInputText id="startDate" type="date" formControlName="startDate" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('startDate')?.invalid }" />
+        <input pInputText id="startDate" type="date" formControlName="startDate" [ngClass]="{ 'input-invalid': isFieldInvalid('startDate') }" />
+        @if (isFieldInvalid('startDate')) {
+          <small class="field-error">{{ getFieldError('startDate') }}</small>
+        }
       </div>
 
       <div class="field-col">
         <label for="reminderDaysBefore">Lembrar antes (dias)</label>
-        <input pInputText id="reminderDaysBefore" type="number" min="0" formControlName="reminderDaysBefore" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('reminderDaysBefore')?.invalid }" />
+        <input pInputText id="reminderDaysBefore" type="number" min="0" formControlName="reminderDaysBefore" [ngClass]="{ 'input-invalid': isFieldInvalid('reminderDaysBefore') }" />
+        @if (isFieldInvalid('reminderDaysBefore')) {
+          <small class="field-error">{{ getFieldError('reminderDaysBefore') }}</small>
+        }
       </div>
     </div>
 

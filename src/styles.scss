@@ -218,6 +218,7 @@ h3, h1, h2 {
 
 .p-toast.app-toast-stack {
   width: min(22rem, calc(100vw - 1.5rem)) !important;
+  z-index: 22000 !important;
 }
 
 .p-toast.app-toast-stack.p-toast-top-right {

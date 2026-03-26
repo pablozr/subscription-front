@@ -1,9 +1,8 @@
 export interface IUser {
   id: number
+  userId?: number
   email: string
-  username: string
-  firstName: string
-  lastName: string
-  active: boolean
-  roles: string[]
+  fullName: string
+  role: 'BASIC' | 'ADMIN'
+  active?: boolean
 }

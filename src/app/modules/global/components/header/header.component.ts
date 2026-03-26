@@ -26,18 +26,11 @@ export class HeaderComponent {
     })
   }
 
-  getUserRole(roles: string[] | undefined) {
-    if (roles) {
-      return roles[0]
-    } else {
-      return 'SEM CARGO'
-    }
+  get userRole() {
+    return this.userData?.user?.role ?? 'BASIC'
   }
 
   get fullName() {
-    const firstName = this.userData?.user?.firstName ?? 'Usuario'
-    const lastName = this.userData?.user?.lastName ?? ''
-
-    return `${firstName} ${lastName}`.trim()
+    return this.userData?.user?.fullName || 'Usuario'
   }
 }

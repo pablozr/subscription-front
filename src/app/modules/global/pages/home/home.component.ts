@@ -45,13 +45,10 @@ export class HomeComponent {
   }
 
   get fullName() {
-    const firstName = this.userData?.user?.firstName ?? 'Usuario'
-    const lastName = this.userData?.user?.lastName ?? ''
-
-    return `${firstName} ${lastName}`.trim()
+    return this.userData?.user?.fullName || 'Usuario'
   }
 
   get primaryRole() {
-    return this.userData?.user?.roles?.[0] ?? 'MEMBRO'
+    return this.userData?.user?.role ?? 'BASIC'
   }
 }
