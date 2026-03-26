@@ -1,10 +1,34 @@
 <div class="all-container">
   <app-header></app-header>
-  <div class="home-page">
-    <div class="welcome-content">
-      <h2>Seja bem-vindo(a),</h2>
-      <h1>{{userData?.user?.firstName}} {{userData?.user?.lastName}}</h1>
-      <p>Selecione um modulo no menu lateral para comecar.</p>
+
+  <section class="page-shell rise-in">
+    <div class="welcome-panel">
+      <p class="page-eyebrow">Subscription manager</p>
+      <h1 class="page-title">Bem-vindo, {{ fullName }}.</h1>
+      <p class="page-description">
+        Este workspace vai concentrar a operacao de assinaturas. Por enquanto, a home funciona como ponto de entrada e direcao rapida para os modulos que vao nascer em seguida.
+      </p>
+
+      <div class="hero-meta">
+        <span class="meta-pill meta-pill--accent">{{ primaryRole }}</span>
+        <span class="meta-pill">Overview inicial</span>
+      </div>
     </div>
-  </div>
+
+    <div class="direction-grid">
+      @for (item of quickDirections; track item.title) {
+        <article class="direction-card">
+          <span class="direction-card__icon pi {{ item.icon }}"></span>
+          <div class="direction-card__copy">
+            <div>
+              <p class="direction-card__eyebrow">{{ item.status }}</p>
+              <h2>{{ item.title }}</h2>
+            </div>
+
+            <p>{{ item.detail }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
 </div>

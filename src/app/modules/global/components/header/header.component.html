@@ -1,33 +1,42 @@
-<div class="card">
-  <p-toolbar
-    styleClass=""
-    [hidden]="false"
-  >
+<header class="header-shell">
+  <p-toolbar>
     <ng-template pTemplate="start">
-      <app-sidebar></app-sidebar>
+      <div class="header-start">
+        <app-sidebar></app-sidebar>
+
+        <div class="brand-lockup">
+          <span class="brand-mark">S</span>
+          <div class="brand-copy">
+            <span class="brand-copy__eyebrow">Subscription manager</span>
+            <strong>Control Center</strong>
+            <small class="brand-copy__support">Clientes, planos e cobranca em um unico workspace.</small>
+          </div>
+        </div>
+      </div>
     </ng-template>
 
     <ng-template pTemplate="end">
-        <div (click)="openNotification()" class="flex justify-content-center align-items-center mr-4 cursor-pointer">
-          <span class="pi pi-bell notification"></span>
+      <div class="header-end">
+        <div class="header-context">
+          <span class="header-context__eyebrow">Area atual</span>
+          <strong>Overview</strong>
         </div>
-        <div class="flex align-items-center justify-content-center gap-2">
-          <div class="flex flex-column">
-            <h3 class="font-medium">{{userData?.user?.firstName}} {{userData?.user?.lastName}}</h3>
-            <span class="text-sm" [ngStyle]="{color: 'var(--primary-color)'}" class="font-semibold">{{getUserRole(userData?.user?.roles)}}</span>
+
+        <app-button-theme [compact]="true"></app-button-theme>
+
+        <div class="profile-chip">
+          <div class="profile-chip__copy">
+            <span class="profile-chip__eyebrow">Conta ativa</span>
+            <strong>{{ fullName }}</strong>
           </div>
 
-        <p-avatar
-          image='https://avatars.githubusercontent.com/u/42438006?v=4'
-          shape="circle"
-          [size]="'large'"
-        />
-        <!-- <p-avatar
-          image={{userData?.user?.avatar}}
-          shape="circle"
-          [size]="'large'"
-        /> -->
+          <p-avatar
+            [image]="'https://ui-avatars.com/api/?name=' + (userData?.user?.firstName || 'U') + '+' + (userData?.user?.lastName || 'S') + '&background=7c3aed&color=FFF&size=128&bold=true'"
+            shape="circle"
+            [size]="'large'"
+          />
         </div>
+      </div>
     </ng-template>
   </p-toolbar>
-</div>
+</header>

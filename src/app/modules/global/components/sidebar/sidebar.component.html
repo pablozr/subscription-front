@@ -1,103 +1,100 @@
-<div class="shadow-div" [ngStyle]="{'display': sidebarVisible ? 'inline': 'none', 'opacity': sidebarVisible ? '1': '0'}" (click)="customClose()"></div>
-<div class="main-div">
-  <p-drawer  #sidebarRef [(visible)]="sidebarVisible" [modal]=false>
+<div class="sidebar-root">
+  <p-drawer
+    #sidebarRef
+    [(visible)]="sidebarVisible"
+    [modal]="true"
+    [dismissible]="true"
+    [blockScroll]="true"
+    [showCloseIcon]="false"
+    [baseZIndex]="16000"
+    (onHide)="customClose()"
+  >
     <ng-template pTemplate="headless">
-      <div class="flex flex-column h-full">
-        <div class="flex align-items-center justify-content-between px-4 pt-3 flex-shrink-0">
-          <span class="inline-flex align-items-center gap-2">
-            <!-- <img src="../../../assets/images/logo.png" class="logo-img" /> -->
-            <span class="text-2xl font-medium" [ngStyle]="{color: 'var(--primary-color)'}">NOME EMPRESA</span>
-          </span>
-          <span class="close-icon">
-            <button type="button" (click)="customClose()">
-            <i class="pi pi-times" [ngStyle]="{color: 'var(--primary-color)'}"></i>
-            </button>
-          </span>
+      <div class="sidebar-shell">
+        <div class="sidebar-topbar">
+          <div class="sidebar-brand">
+            <div>
+              <p>Product shell</p>
+              <strong>Subscription Manager</strong>
+            </div>
+          </div>
+
+          <button type="button" class="close-button" (click)="customClose()" aria-label="Fechar menu lateral">
+            <i class="pi pi-times"></i>
+          </button>
         </div>
-        <div class="overflow-y-auto">
+
+        <div class="sidebar-routes">
           @for (route of availableRoutes; track route.label){
             @if (canAccessRoute(route.rolesCanAccess)) {
-              <ul class="list-none p-3 m-0">
-                <li>
-                  <div
-                    pRipple
-                    pStyleClass="@next"
-                    enterClass="hidden"
-                    enterActiveClass="slidedown"
-                    leaveToClass="hidden"
-                    leaveActiveClass="slideup"
-                    class="p-3 flex align-items-center justify-content-between text-600 cursor-pointer p-ripple"
-                  >
-                    <span class="font-medium">{{ route.label }}</span>
-                    <i class="pi pi-chevron-down"></i>
-                  </div>
-                  <ul class="list-none p-0 m-0 overflow-hidden" [ngClass]="{'hidden': route.hidden}">
-                    @for (childrenRoute of route.routes; track childrenRoute.label){
-                      @if (canAccess(childrenRoute.rolesCanAccess)) {
-                        @if (childrenRoute.routes.length > 0){
-                          <li>
-                            <a
-                              pRipple
-                              pStyleClass="@next"
-                              enterClass="hidden"
-                              enterActiveClass="slidedown"
-                              leaveToClass="hidden"
-                              leaveActiveClass="slideup"
-                              class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple"
-                            >
-                              <i [class]="childrenRoute.class"></i>
-                              <span class="font-medium">{{ childrenRoute.label }}</span>
-                              <i class="pi pi-chevron-down ml-auto"></i>
-                            </a>
-                            <ul class="list-none py-0 pl-3 pr-0 m-0 hidden overflow-y-hidden transition-all transition-duration-400 transition-ease-in-out">
-                              @for (grandchildRoute of childrenRoute.routes; track grandchildRoute.label){
-                                <li>
-                                  @if (grandchildRoute.routeQuery.length > 0){
-                                    <a (click)="navigateToWithQuery(grandchildRoute.routeQuery[0], grandchildRoute.routeQuery[1])" pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
-                                        <i [class]="grandchildRoute.class"></i>
-                                      <span class="font-medium">{{ grandchildRoute.label }}</span>
-                                    </a>
-                                  }@else {
-                                    <a (click)="navigateTo(childrenRoute.route)" pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
-                                      <i [class]="grandchildRoute.class"></i>
-                                      <span class="font-medium">{{ grandchildRoute.label }}</span>
-                                    </a>
-                                  }
-                                </li>
-                              }
-                            </ul>
-                          </li>
-                        } @else {
-                          <li>
-                            <a (click)="childrenRoute.route ? navigateTo(childrenRoute.route) : navigateToWithQuery(childrenRoute.routeQuery[0], childrenRoute.routeQuery[1])" pRipple class="flex align-items-center cursor-pointer p-3 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
-                              <i [class]="childrenRoute.class"></i>
-                              <span class="font-medium">{{ childrenRoute.label }}</span>
-                            </a>
-                          </li>
-                        }
+              <section class="sidebar-section">
+                <p class="sidebar-section__label">{{ route.label }}</p>
+
+                <div class="sidebar-links">
+                  @for (childrenRoute of route.routes; track childrenRoute.label){
+                    @if (canAccess(childrenRoute.rolesCanAccess)) {
+                      @if (childrenRoute.routes.length > 0){
+                        <div class="sidebar-subsection">
+                          <button type="button" class="sidebar-link" [class.sidebar-link--active]="isActive(childrenRoute.route, childrenRoute.routeQuery)" (click)="childrenRoute.route ? navigateTo(childrenRoute.route) : navigateToWithQuery(childrenRoute.routeQuery[0], childrenRoute.routeQuery[1])">
+                            <span class="sidebar-link__icon"><i [class]="childrenRoute.class"></i></span>
+                            <span class="sidebar-link__content">
+                              <strong>{{ childrenRoute.label }}</strong>
+                              <small>Area principal do modulo</small>
+                            </span>
+                          </button>
+
+                          <div class="sidebar-link-children">
+                            @for (grandchildRoute of childrenRoute.routes; track grandchildRoute.label){
+                              <button
+                                type="button"
+                                class="sidebar-child-link"
+                                (click)="grandchildRoute.routeQuery.length > 0 ? navigateToWithQuery(grandchildRoute.routeQuery[0], grandchildRoute.routeQuery[1]) : navigateTo(grandchildRoute.route)"
+                              >
+                                <i [class]="grandchildRoute.class"></i>
+                                <span>{{ grandchildRoute.label }}</span>
+                              </button>
+                            }
+                          </div>
+                        </div>
+                      } @else {
+                        <button type="button" class="sidebar-link" [class.sidebar-link--active]="isActive(childrenRoute.route, childrenRoute.routeQuery)" (click)="childrenRoute.route ? navigateTo(childrenRoute.route) : navigateToWithQuery(childrenRoute.routeQuery[0], childrenRoute.routeQuery[1])">
+                          <span class="sidebar-link__icon"><i [class]="childrenRoute.class"></i></span>
+                          <span class="sidebar-link__content">
+                            <strong>{{ childrenRoute.label }}</strong>
+                            <small>Entrada principal do produto</small>
+                          </span>
+                        </button>
                       }
                     }
-                  </ul>
-                </li>
-              </ul>
+                  }
+                </div>
+              </section>
             }
           }
         </div>
-        <div class="mt-auto">
-          <hr class="mb-3 mx-3 border-top-1 border-none surface-border" />
-          <a (click)="navigateTo('settings')" pRipple class="m-3 flex align-items-center cursor-pointer p-3 gap-2 border-round text-700 hover:surface-100 transition-duration-150 transition-colors p-ripple">
+
+        <div class="sidebar-footer">
+          <div class="sidebar-account">
             <p-avatar [image]="`https://ui-avatars.com/api/?name=${userData?.user?.firstName}+${userData?.user?.lastName}&background=7c3aed&color=FFF&size=128&bold=true`" shape="circle" />
-            <span class="font-bold">{{userData?.user?.firstName}} {{userData?.user?.lastName}}</span>
-          </a>
-          <div class="container-bottom">
+            <div>
+              <p>{{userData?.user?.firstName}} {{userData?.user?.lastName}}</p>
+              <span>{{ userData?.user?.roles?.[0] || 'MEMBRO' }}</span>
+            </div>
+          </div>
+
+          <div class="sidebar-footer__actions">
             <app-button-theme></app-button-theme>
-            <button (click)="logout()"><i class="pi pi-sign-out" style="font-size: 1.2rem"></i></button>
+            <button type="button" class="logout-button" (click)="logout()">
+              <i class="pi pi-sign-out"></i>
+              <span>Sair</span>
+            </button>
           </div>
         </div>
       </div>
     </ng-template>
   </p-drawer>
-  <p-button (click)="sidebarVisible = true" [severity]="'info'" [style]="{'padding': '0.5rem', 'backgroundColor': 'var(--primary-color)', 'color': 'var(--secondary-color)', 'border': 'none'}">
-    <i class="pi pi-bars" style="font-size: 1.5rem;"></i>
-  </p-button>
+
+  <button type="button" class="sidebar-trigger" (click)="sidebarVisible = true" aria-label="Abrir menu lateral">
+    <i class="pi pi-bars"></i>
+  </button>
 </div>

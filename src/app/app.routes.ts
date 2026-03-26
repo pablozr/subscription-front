@@ -28,6 +28,11 @@ export const routes: Routes = [
 
   },
   {
+    path: 'subscriptions',
+    loadComponent: () => import('./modules/subscriptions/pages/subscriptions/subscriptions.component').then(m => m.SubscriptionsComponent),
+    
+  },
+  {
     path: '**',
     loadComponent: () => import('./modules/global/pages/not-found/not-found.component').then(m => m.NotFoundComponent)
   }

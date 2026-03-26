@@ -1,23 +1,13 @@
 import { inject, Injectable } from '@angular/core'
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http'
 import { AppToastService } from '../toast/app-toast.service'
 import { BehaviorSubject } from 'rxjs'
 import { Router } from '@angular/router'
-import { IRegisterRequest, ISigninData, ISigninRequest, ISigninResponse } from '../../interfaces/ISignin'
+import { IRegisterRequest, ISigninData, ISigninRequest } from '../../interfaces/ISignin'
 import { IUser } from '../../interfaces/IUser'
 import { StorageService } from '../local-storage/storage.service'
 
-const mockUser: ISigninData = {
-  user: {
-    accessId: 1,
-    email: 'user@template.com',
-    username: 'admin',
-    firstName: 'Usuario',
-    lastName: 'Template',
-    active: true,
-    roles: ['ADMIN']
-  }
-}
+const API_URL = 'http://localhost:5685'
 
 @Injectable({
   providedIn: 'root'
@@ -28,8 +18,7 @@ export class UsersService {
   private storageService = inject(StorageService)
   private router = inject(Router)
 
-  private token: string = ''
-  private endpoint: string = ''
+  private endpoint: string = API_URL
 
   private userSubject = new BehaviorSubject<ISigninData | null>(null)
   user$ = this.userSubject.asObservable()
@@ -38,24 +27,21 @@ export class UsersService {
     return this.userSubject.value
   }
 
-  private getHeaders() {
-    return new HttpHeaders().set('Authorization', `Bearer ${this.token}`)
-  }
-
   // Auth
 
   signin(data: ISigninRequest) {
-    const emailOk = data.email === 'user@template.com' || data.email === 'admin@template.com'
-    if (emailOk && data.password === 'admin') {
-      this.userSubject.next(mockUser)
-      this.storageService.setLocalStorage('USER-BASIC-TEMPLATE', mockUser, false, false)
-      return Promise.resolve(true)
-    }
-
     return new Promise<boolean>((resolve) => {
-      this.http.post<ISigninResponse>(`${this.endpoint}/auth/login`, data, { withCredentials: true }).subscribe({
+      this.http.post<any>(`${this.endpoint}/auth/login`, data, { withCredentials: true }).subscribe({
         next: (res) => {
-          this.userSubject.next(res.data)
+          const userData = this.extractUserData(res)
+
+          if (!userData) {
+            this.toast.error('Sign-in failed', 'Could not read user profile from the server response.')
+            resolve(false)
+            return
+          }
+
+          this.userSubject.next(userData)
           resolve(true)
         },
         error: (err) => {
@@ -69,7 +55,7 @@ export class UsersService {
   register(data: IRegisterRequest) {
     const payload = this.buildRegisterPayload(data)
     return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/register`, payload).subscribe({
+      this.http.post<any>(`${this.endpoint}/users/`, payload, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
             this.toast.success('Account created', 'Your account was created successfully.')
@@ -102,7 +88,7 @@ export class UsersService {
 
   logout() {
     return new Promise<boolean>((resolve) => {
-      this.http.post(`${this.endpoint}/auth/logout`, {}, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.post(`${this.endpoint}/auth/logout`, {}, { withCredentials: true }).subscribe({
         next: () => {
           this.userSubject.next(null)
           this.storageService.deleteLocalStorage('USER-BASIC-TEMPLATE')
@@ -121,9 +107,16 @@ export class UsersService {
 
   rehydrateSession() {
     return new Promise<boolean>((resolve) => {
-      this.http.get<ISigninResponse>(`${this.endpoint}/auth/me`, { withCredentials: true, headers: this.getHeaders() }).subscribe({
-        next: (data) => {
-          this.userSubject.next(data.data)
+      this.http.get<any>(`${this.endpoint}/users/me`, { withCredentials: true }).subscribe({
+        next: (res) => {
+          const userData = this.extractUserData(res)
+
+          if (!userData) {
+            resolve(false)
+            return
+          }
+
+          this.userSubject.next(userData)
           resolve(true)
         },
         error: () => {
@@ -154,9 +147,9 @@ export class UsersService {
 
   validateHashCode(data: any) {
     return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/validate-hash`, data).subscribe({
+      this.http.post<any>(`${this.endpoint}/auth/validate-code`, data).subscribe({
         next: (res) => {
-          if (res?.userId) {
+          if (res?.validated || res?.isValid || res?.userId || res?.message) {
             this.toast.success('Codigo validado', 'Codigo de confirmacao validado.')
             resolve(true)
           } else {
@@ -174,7 +167,7 @@ export class UsersService {
 
   editPasswordWithOutOldPassword(userId: string, data: any) {
     return new Promise<boolean>((resolve) => {
-      this.http.patch<any>(`${this.endpoint}/auth/reset-password/${userId}`, data).subscribe({
+      this.http.post<any>(`${this.endpoint}/auth/update-password`, { ...data, userId }).subscribe({
         next: (res) => {
           if (res?.message) {
             this.toast.success('Senha alterada', 'A senha foi redefinida com sucesso.')
@@ -196,7 +189,7 @@ export class UsersService {
 
   findAllUsers() {
     return new Promise<IUser[]>((resolve) => {
-      this.http.get<IUser[]>(`${this.endpoint}/users`, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.get<any>(`${this.endpoint}/users/`, { withCredentials: true }).subscribe({
         next: (data) => resolve(data || []),
         error: (err) => {
           this.toast.error('Erro ao buscar usuarios', err.error?.detail || 'Tente novamente.')
@@ -208,7 +201,7 @@ export class UsersService {
 
   findOneUser(userId: number) {
     return new Promise<IUser | null>((resolve) => {
-      this.http.get<IUser>(`${this.endpoint}/users/${userId}`, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.get<IUser>(`${this.endpoint}/users/${userId}`, { withCredentials: true }).subscribe({
         next: (data) => resolve(data || null),
         error: (err) => {
           this.toast.error('Erro ao buscar usuario', err.error?.detail || 'Tente novamente.')
@@ -220,7 +213,7 @@ export class UsersService {
 
   createUser(data: any) {
     return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/users`, data, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.post<any>(`${this.endpoint}/users/`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
             this.toast.success('Usuario criado', 'O usuario foi criado com sucesso.')
@@ -237,7 +230,7 @@ export class UsersService {
 
   editUser(userId: number, data: any) {
     return new Promise<boolean>((resolve) => {
-      this.http.patch<any>(`${this.endpoint}/users/${userId}`, data, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.put<any>(`${this.endpoint}/users/me`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res) {
             this.toast.success('Dados alterados', 'As informacoes foram alteradas com sucesso.')
@@ -254,7 +247,7 @@ export class UsersService {
 
   deleteUser(userId: number) {
     return new Promise<boolean>((resolve) => {
-      this.http.delete<any>(`${this.endpoint}/users/${userId}`, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.delete<any>(`${this.endpoint}/users/${userId}`, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
             this.toast.success('Usuario excluido', 'O usuario foi excluido com sucesso.')
@@ -271,7 +264,7 @@ export class UsersService {
 
   editPassword(data: any) {
     return new Promise<boolean>((resolve) => {
-      this.http.patch<any>(`${this.endpoint}/users/password`, data, { withCredentials: true, headers: this.getHeaders() }).subscribe({
+      this.http.post<any>(`${this.endpoint}/auth/update-password`, data, { withCredentials: true }).subscribe({
         next: (res) => {
           if (res?.message) {
             this.toast.success('Senha alterada', res.message)
@@ -284,5 +277,25 @@ export class UsersService {
         }
       })
     })
+  }
+
+  private extractUserData(data: any): ISigninData | null {
+    const source = data?.data ?? data
+
+    if (!source?.user) {
+      return null
+    }
+
+    return {
+      user: {
+        accessId: Number(source.user.accessId ?? source.user.id ?? 0),
+        email: source.user.email ?? '',
+        username: source.user.username ?? source.user.email ?? '',
+        firstName: source.user.firstName ?? source.user.first_name ?? '',
+        lastName: source.user.lastName ?? source.user.last_name ?? '',
+        active: source.user.active ?? true,
+        roles: source.user.roles ?? ['USER']
+      }
+    }
   }
 }

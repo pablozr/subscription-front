@@ -19,6 +19,7 @@
   --accent-gradient: linear-gradient(135deg, #6d28d9, #8b5cf6);
   --header-bg: rgba(244, 242, 248, 0.9);
   --overlay-bg: rgba(24, 21, 35, 0.42);
+  --app-header-offset: 88px;
   /* Auth / login-register — claro: fundo quente e baixo brilho (evita “tela branca”) */
   --auth-panel-bg: linear-gradient(168deg, #ebe9f0 0%, #e4e1ea 42%, #eceaf1 100%);
   --auth-panel-solid: #e8e6ef;
@@ -436,5 +437,11 @@ html.my-app-dark .p-toast.app-toast-stack .p-toast-close-button:hover {
 @media (prefers-reduced-motion: reduce) {
   .p-toast.app-toast-stack .p-toast-message-enter-active {
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --app-header-offset: 76px;
   }
 }

@@ -1,42 +1,41 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { DrawerModule, Drawer } from 'primeng/drawer';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { AvatarModule } from 'primeng/avatar';
-import { StyleClassModule } from 'primeng/styleclass';
-import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { UsersService } from '../../services/users/users.service';
-import { ButtonThemeComponent } from '../button-theme/button-theme.component';
-import { ISidebarRoute } from '../../interfaces/ISidebarRoute';
-import { ISigninData } from '../../interfaces/ISignin';
+import { Component, OnInit, ViewChild, inject } from '@angular/core'
+import { DrawerModule, Drawer } from 'primeng/drawer'
+import { ButtonModule } from 'primeng/button'
+import { RippleModule } from 'primeng/ripple'
+import { AvatarModule } from 'primeng/avatar'
+import { Router } from '@angular/router'
+import { CommonModule } from '@angular/common'
+import { UsersService } from '../../services/users/users.service'
+import { ButtonThemeComponent } from '../button-theme/button-theme.component'
+import { ISidebarRoute } from '../../interfaces/ISidebarRoute'
+import { ISigninData } from '../../interfaces/ISignin'
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [DrawerModule, ButtonModule, RippleModule, AvatarModule, StyleClassModule, CommonModule, ButtonThemeComponent],
+  imports: [DrawerModule, ButtonModule, RippleModule, AvatarModule, CommonModule, ButtonThemeComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent implements OnInit {
-  private usersService = inject(UsersService);
-  private router = inject(Router);
+  private usersService = inject(UsersService)
+  private router = inject(Router)
 
-  userData!: ISigninData | null;
-  sidebarVisible: boolean = false;
+  userData!: ISigninData | null
+  sidebarVisible = false
 
   availableRoutes!: ISidebarRoute[]
 
-  @ViewChild('sidebarRef') sidebarRef!: Drawer;
+  @ViewChild('sidebarRef') sidebarRef!: Drawer
 
   ngOnInit() {
     this.usersService.user$.subscribe((data) => {
-      this.userData = data;
-    });
+      this.userData = data
+    })
 
     this.availableRoutes = [
       {
-        label: 'GERAL',
+        label: 'Workspace',
         codesCanAccess: [],
         rolesCanAccess: ['ALL'],
         hidden: false,
@@ -45,72 +44,44 @@ export class SidebarComponent implements OnInit {
           {
             route: '/home',
             routeQuery: [],
-            label: 'HOME',
-            class: 'pi pi-home mr-2',
+            label: 'Overview',
+            class: 'pi pi-home',
+            codesCanAccess: [],
+            rolesCanAccess: ['ALL'],
+            status: true,
+            routes: []
+          },
+          {
+            route: '/subscriptions',
+            routeQuery: [],
+            label: 'Subscriptions',
+            class: 'pi pi-wallet',
             codesCanAccess: [],
             rolesCanAccess: ['ALL'],
             status: true,
             routes: []
           }
         ]
-      },
-      {
-        label: 'MODULO 1',
-        codesCanAccess: [],
-        rolesCanAccess: ['ALL'],
-        hidden: false,
-        status: true,
-        routes: [
-          {
-            route: '/page1',
-            routeQuery: [],
-            label: 'PAGINA 1',
-            class: 'pi pi-calendar mr-2',
-            codesCanAccess: [],
-            rolesCanAccess: ['ALL'],
-            status: true,
-            routes: []
-          },
-        ]
-      },
-      {
-        label: 'MODULO 2',
-        codesCanAccess: [],
-        rolesCanAccess: ['ALL'],
-        hidden: false,
-        status: true,
-        routes: [
-          {
-            route: '/page2',
-            routeQuery: [],
-            label: 'PAGINA 2',
-            class: 'pi pi-users mr-2',
-            codesCanAccess: [],
-            rolesCanAccess: ['ALL'],
-            status: true,
-            routes: []
-          },
-        ]
-      },
-    ];
+      }
+    ]
   }
 
   closeCallback(e: any): void {
-    this.sidebarRef.close(e);
+    this.sidebarRef.close(e)
   }
 
   navigateTo(route: string) {
-    this.sidebarVisible = false;
-    this.router.navigate([route]);
+    this.sidebarVisible = false
+    this.router.navigate([route])
   }
 
   navigateToWithQuery(route: string, target: string) {
-    this.sidebarVisible = false;
-    this.router.navigate([route], { queryParams: { target } });
+    this.sidebarVisible = false
+    this.router.navigate([route], { queryParams: { target } })
   }
 
   async logout() {
-    await this.usersService.logout();
+    await this.usersService.logout()
   }
 
   canAccess(rolesCanAccess: string[]): boolean {
@@ -132,6 +103,18 @@ export class SidebarComponent implements OnInit {
   }
 
   customClose() {
-    this.sidebarVisible = false;
+    this.sidebarVisible = false
+  }
+
+  isActive(route: string, routeQuery?: string[]) {
+    if (!route) {
+      return false
+    }
+
+    if (routeQuery?.length) {
+      return this.router.url.startsWith(routeQuery[0])
+    }
+
+    return this.router.url.startsWith(route)
   }
 }

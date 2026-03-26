@@ -1,0 +1,438 @@
+.page-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0 48px;
+}
+
+.page-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.page-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--auth-muted);
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--auth-heading);
+}
+
+.page-description {
+  margin: 12px 0 0;
+  max-width: 60ch;
+  color: var(--auth-muted-strong);
+  line-height: 1.55;
+}
+
+.hero-kpis {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.kpi-card {
+  border: 1px solid var(--auth-input-border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--auth-input-bg), var(--auth-social-bg));
+  padding: 12px 14px;
+  min-width: 140px;
+
+  span {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--auth-muted);
+    margin-bottom: 6px;
+  }
+
+  strong {
+    font-size: 1.35rem;
+    color: var(--auth-heading);
+  }
+}
+
+.kpi-card--solid {
+  background: var(--accent-gradient);
+  border-color: transparent;
+
+  span,
+  strong {
+    color: #fff;
+  }
+}
+
+.subscriptions-panel {
+  border: 1px solid var(--auth-input-border);
+  border-radius: 22px;
+  padding: 20px;
+  background:
+    linear-gradient(180deg, var(--auth-input-bg), var(--auth-social-bg)),
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.08), transparent 38%);
+  box-shadow: 0 8px 28px var(--shadow-color);
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--auth-heading);
+  }
+}
+
+.filter-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.search-wrap {
+  position: relative;
+
+  i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.82rem;
+    color: var(--auth-muted);
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--auth-input-border);
+    background: var(--auth-input-bg);
+    color: var(--auth-text);
+    padding: 0 12px 0 34px;
+    box-sizing: border-box;
+    outline: none;
+
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    }
+  }
+}
+
+.empty-state {
+  border: 1px dashed var(--auth-input-border);
+  border-radius: 14px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--auth-muted-strong);
+
+  i {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.subscription-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subscription-card {
+  border: 1px solid var(--auth-input-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--auth-social-bg);
+}
+
+.subscription-card__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+
+  h3 {
+    margin: 2px 0 0;
+    font-size: 1rem;
+    color: var(--auth-heading);
+  }
+
+  strong {
+    color: var(--primary-color);
+    font-size: 1.05rem;
+  }
+}
+
+.subscription-cycle {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--auth-muted);
+}
+
+.subscription-card__meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  span {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--auth-input-border);
+    font-size: 0.75rem;
+    color: var(--auth-text);
+  }
+}
+
+.status-pill {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857 !important;
+
+  &--paused {
+    background: rgba(245, 158, 11, 0.14);
+    color: #92400e !important;
+  }
+
+  &--canceled {
+    background: rgba(244, 63, 94, 0.14);
+    color: #9f1239 !important;
+  }
+}
+
+.subscription-card__actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.subscription-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  label {
+    font-size: 0.78rem;
+    color: var(--auth-label);
+    letter-spacing: 0.03em;
+  }
+
+  input,
+  select {
+    width: 100%;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--auth-input-border);
+    background: var(--auth-input-bg);
+    color: var(--auth-text);
+    padding: 0 12px;
+    box-sizing: border-box;
+    font-family: inherit;
+    outline: none;
+
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    }
+  }
+
+  select {
+    appearance: none;
+    padding-right: 38px;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--auth-muted-strong) 50%),
+      linear-gradient(135deg, var(--auth-muted-strong) 50%, transparent 50%);
+    background-position:
+      calc(100% - 18px) calc(50% - 3px),
+      calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.field-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 1.08rem;
+  color: var(--auth-heading);
+}
+
+.dialog-description {
+  margin: 2px 0 0;
+  color: var(--auth-muted-strong);
+  line-height: 1.6;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.submit-btn,
+.secondary-btn,
+.danger-btn {
+  border-radius: 10px;
+  min-height: 40px;
+}
+
+.submit-btn {
+  border: 0;
+  color: #fff;
+  background: var(--accent-gradient);
+}
+
+.secondary-btn {
+  border: 1px solid var(--auth-input-border);
+  background: transparent;
+  color: var(--auth-text);
+}
+
+.danger-btn {
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  background: rgba(244, 63, 94, 0.12);
+  color: #9f1239;
+}
+
+.input-invalid {
+  border-color: rgb(202, 35, 35) !important;
+}
+
+.rise-in {
+  animation: riseIn 440ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 980px) {
+  .page-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .filter-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-action {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-shell {
+    width: min(100%, calc(100% - 20px));
+    padding-top: 20px;
+  }
+
+  .hero-kpis {
+    flex-wrap: wrap;
+  }
+
+  .grid-two,
+  .subscription-card__main,
+  .subscription-card__actions {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
+}
+
+:host-context(.my-app-dark) {
+  .subscription-form select {
+    color-scheme: dark;
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .subscription-form select option {
+    background: #1a1722;
+    color: #ececee;
+  }
+
+  .danger-btn {
+    background: rgba(251, 113, 133, 0.14);
+    border-color: rgba(251, 113, 133, 0.35);
+    color: #fecdd3;
+  }
+
+  .search-wrap input {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+:host ::ng-deep .subscription-dialog .p-dialog-content {
+  padding-top: 0.5rem;
+}
+
+:host ::ng-deep .filter-toolbar .p-selectbutton .p-button {
+  border-radius: 10px;
+  border-color: var(--auth-input-border);
+  background: transparent;
+  color: var(--auth-text);
+}
+
+:host ::ng-deep .filter-toolbar .p-selectbutton .p-button.p-highlight {
+  background: var(--auth-cta-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}

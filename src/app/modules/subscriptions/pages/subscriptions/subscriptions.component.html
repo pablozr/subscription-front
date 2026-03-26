@@ -1,0 +1,234 @@
+<div class="all-container">
+  <app-header></app-header>
+
+  <section class="page-shell rise-in">
+    <header class="page-hero">
+      <div>
+        <p class="page-eyebrow">Workspace</p>
+        <h1 class="page-title">Subscriptions</h1>
+        <p class="page-description">
+          Cadastre, atualize e acompanhe as suas inscricoes recorrentes em um unico painel.
+        </p>
+      </div>
+
+      <div class="hero-kpis">
+        <article class="kpi-card kpi-card--solid">
+          <span>Ativas</span>
+          <strong>{{ totalActiveSubscriptions }}</strong>
+        </article>
+        <article class="kpi-card">
+          <span>Projecao mensal</span>
+          <strong>{{ totalMonthlyProjection | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+        </article>
+        <div class="hero-action">
+          <button pButton pRipple type="button" class="submit-btn" (click)="openCreateDialog()">
+            Nova inscricao
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="subscriptions-panel">
+      <div class="panel-head">
+        <h2>Inscricoes cadastradas</h2>
+        <button pButton pRipple type="button" class="secondary-btn" (click)="loadSubscriptions()" [disabled]="loading">
+          Atualizar
+        </button>
+      </div>
+
+      <div class="filter-toolbar">
+        <div class="search-wrap">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            [value]="searchTerm"
+            (input)="searchTerm = $any($event.target).value"
+            placeholder="Buscar por nome ou ciclo"
+          />
+        </div>
+
+        <p-selectButton
+          [options]="statusFilterOptions"
+          [(ngModel)]="statusFilter"
+          optionLabel="label"
+          optionValue="value"
+          [allowEmpty]="false"
+        />
+
+        @if (hasAnyFilter) {
+          <button pButton pRipple type="button" class="secondary-btn" (click)="clearFilters()">
+            Limpar
+          </button>
+        }
+      </div>
+
+      @if (loading) {
+        <div class="empty-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>Carregando inscricoes...</p>
+        </div>
+      } @else if (!subscriptions.length) {
+        <div class="empty-state">
+          <i class="pi pi-inbox"></i>
+          <p>Nenhuma inscricao cadastrada ainda.</p>
+          <button pButton pRipple type="button" class="submit-btn" (click)="openCreateDialog()">
+            Criar primeira inscricao
+          </button>
+        </div>
+      } @else if (!filteredSubscriptions.length) {
+        <div class="empty-state">
+          <i class="pi pi-filter-slash"></i>
+          <p>Nenhuma inscricao encontrada para os filtros aplicados.</p>
+          <button pButton pRipple type="button" class="secondary-btn" (click)="clearFilters()">
+            Limpar filtros
+          </button>
+        </div>
+      } @else {
+        <div class="subscription-list">
+          @for (subscription of filteredSubscriptions; track subscription.id) {
+            <article class="subscription-card">
+              <div class="subscription-card__main">
+                <div>
+                  <p class="subscription-cycle">{{ subscription.billingCycle }}</p>
+                  <h3>{{ subscription.name }}</h3>
+                </div>
+                <strong>{{ subscription.price | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+              </div>
+
+              <div class="subscription-card__meta">
+                <span>Inicio: {{ subscription.startDate | date: 'dd/MM/yyyy' }}</span>
+                @if (subscription.nextPaymentDate) {
+                  <span>Proximo: {{ subscription.nextPaymentDate | date: 'dd/MM/yyyy' }}</span>
+                }
+                <span>Lembrete: {{ subscription.reminderDaysBefore }} dia(s) antes</span>
+                <span class="status-pill" [class.status-pill--paused]="subscription.status === 'PAUSED'" [class.status-pill--canceled]="subscription.status === 'CANCELED'">
+                  {{ subscription.status }}
+                </span>
+              </div>
+
+              <div class="subscription-card__actions">
+                <button pButton pRipple type="button" class="secondary-btn" (click)="startEdit(subscription)">
+                  Editar
+                </button>
+                <button pButton pRipple type="button" class="secondary-btn" (click)="toggleStatus(subscription)">
+                  {{ subscription.status === 'ACTIVE' ? 'Cancelar' : 'Reativar' }}
+                </button>
+                <button pButton pRipple type="button" class="danger-btn" (click)="openDeleteDialog(subscription)">
+                  Excluir
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </section>
+</div>
+
+<p-dialog
+  [(visible)]="formDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  styleClass="subscription-dialog"
+  [style]="{ width: 'min(680px, calc(100vw - 24px))' }"
+  (onHide)="closeFormDialog()"
+>
+  <ng-template pTemplate="header">
+    <h2 class="dialog-title">{{ formDialogTitle }}</h2>
+  </ng-template>
+
+  <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()" class="subscription-form">
+    <label for="name">Nome</label>
+    <input pInputText id="name" type="text" formControlName="name" placeholder="Ex.: Netflix" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('name')?.invalid }" />
+
+    <div class="grid-two">
+      <div class="field-col">
+        <label for="price">Preco</label>
+        <input pInputText id="price" type="number" min="0" step="0.01" formControlName="price" placeholder="0.00" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('price')?.invalid }" />
+      </div>
+
+      <div class="field-col">
+        <label for="billingCycle">Ciclo</label>
+        <select id="billingCycle" formControlName="billingCycle" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('billingCycle')?.invalid }">
+          @for (option of billingCycleOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-two">
+      <div class="field-col">
+        <label for="startDate">Data de inicio</label>
+        <input pInputText id="startDate" type="date" formControlName="startDate" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('startDate')?.invalid }" />
+      </div>
+
+      <div class="field-col">
+        <label for="reminderDaysBefore">Lembrar antes (dias)</label>
+        <input pInputText id="reminderDaysBefore" type="number" min="0" formControlName="reminderDaysBefore" [ngClass]="{ 'input-invalid': isInvalid && subscriptionForm.get('reminderDaysBefore')?.invalid }" />
+      </div>
+    </div>
+
+    @if (editingSubscription) {
+      <div class="grid-two">
+        <div class="field-col">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status">
+            @for (option of statusOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-col">
+          <label for="nextPaymentDate">Proximo pagamento</label>
+          <input pInputText id="nextPaymentDate" type="date" formControlName="nextPaymentDate" />
+        </div>
+      </div>
+    }
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton pRipple type="button" class="secondary-btn" (click)="closeFormDialog()">
+        Cancelar
+      </button>
+      <button pButton pRipple type="button" class="submit-btn" (click)="onSubmit()" [disabled]="submitLoading">
+        {{ pageButtonLabel }}
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="deleteDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  styleClass="subscription-dialog subscription-dialog--danger"
+  [style]="{ width: 'min(460px, calc(100vw - 24px))' }"
+  (onHide)="closeDeleteDialog()"
+>
+  <ng-template pTemplate="header">
+    <h2 class="dialog-title">Confirmar exclusao</h2>
+  </ng-template>
+
+  <p class="dialog-description">
+    Tem certeza que deseja excluir <strong>{{ deletingSubscription?.name }}</strong>? Esta acao nao pode ser desfeita.
+  </p>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton pRipple type="button" class="secondary-btn" (click)="closeDeleteDialog()" [disabled]="deleteLoading">
+        Cancelar
+      </button>
+      <button pButton pRipple type="button" class="danger-btn" (click)="confirmDelete()" [disabled]="deleteLoading">
+        {{ deleteLoading ? 'Excluindo...' : 'Excluir inscricao' }}
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
