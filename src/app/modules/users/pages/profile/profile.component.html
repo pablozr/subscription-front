@@ -1,0 +1,63 @@
+<div class="all-container">
+  <app-header />
+
+  <section class="page-shell rise-in">
+    <header class="page-hero">
+      <div>
+        <p class="page-eyebrow">Account</p>
+        <h1 class="page-title">Profile</h1>
+        <p class="page-description">
+          Keep your account details up to date so notifications and reminders always reach the right destination.
+        </p>
+      </div>
+    </header>
+
+    <section class="profile-panel">
+      @if (loading) {
+        <div class="empty-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>Loading profile...</p>
+        </div>
+      } @else {
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+          <div class="field-col">
+            <label for="fullName">Full name</label>
+            <input
+              pInputText
+              id="fullName"
+              type="text"
+              formControlName="fullName"
+              [ngClass]="{ 'input-invalid': isFieldInvalid('fullName') }"
+            />
+            @if (isFieldInvalid('fullName')) {
+              <small class="field-error">{{ getFieldError('fullName') }}</small>
+            }
+          </div>
+
+          <div class="field-col">
+            <label for="email">Email</label>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              [ngClass]="{ 'input-invalid': isFieldInvalid('email') }"
+            />
+            @if (isFieldInvalid('email')) {
+              <small class="field-error">{{ getFieldError('email') }}</small>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button pButton type="button" class="secondary-btn" (click)="loadProfile()" [disabled]="saving">
+              Refresh
+            </button>
+            <button pButton type="submit" class="submit-btn" [disabled]="saving">
+              {{ saving ? 'Saving...' : 'Save profile' }}
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+  </section>
+</div>

@@ -33,6 +33,16 @@ export const routes: Routes = [
     canActivate: [AuthService]
   },
   {
+    path: 'payments',
+    loadComponent: () => import('./modules/payments/pages/payments/payments.component').then(m => m.PaymentsComponent),
+    canActivate: [AuthService]
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./modules/users/pages/profile/profile.component').then(m => m.ProfileComponent),
+    canActivate: [AuthService]
+  },
+  {
     path: '**',
     loadComponent: () => import('./modules/global/pages/not-found/not-found.component').then(m => m.NotFoundComponent)
   }

@@ -1,16 +1,21 @@
-import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http'
+import { TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
+import { MessageService } from 'primeng/api'
 
-import { UsersService } from './users.service';
+import { UsersService } from './users.service'
 
 describe('UsersService', () => {
-  let service: UsersService;
+  let service: UsersService
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(UsersService);
-  });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideRouter([]), MessageService]
+    })
+    service = TestBed.inject(UsersService)
+  })
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    expect(service).toBeTruthy()
+  })
+})

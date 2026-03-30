@@ -1,14 +1,16 @@
-import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
-import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { providePrimeNG } from 'primeng/config';
-import { Amethyst } from '../styles';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideRouter } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
+import { Amethyst } from '../styles';
+import { apiErrorInterceptor } from './modules/global/services/http/api-error.interceptor';
+import { withCredentialsInterceptor } from './modules/global/services/http/with-credentials.interceptor';
+import { routes } from './app.routes';
 
 registerLocaleData(localePt, 'pt-BR');
 
@@ -25,7 +27,12 @@ const ptBR = {
 };
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient(), provideAnimations(), BrowserAnimationsModule, MessageService,
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([withCredentialsInterceptor, apiErrorInterceptor])),
+    provideAnimations(),
+    MessageService,
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideAnimationsAsync(),
     providePrimeNG({
@@ -36,5 +43,6 @@ export const appConfig: ApplicationConfig = {
             darkModeSelector: '.my-app-dark'
           }
         }
-    })]
+    })
+  ]
 };

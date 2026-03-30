@@ -1,6 +1,7 @@
 import { CardModule } from 'primeng/card'
 import { CommonModule } from '@angular/common'
-import { Component, inject } from '@angular/core'
+import { Component, DestroyRef, inject } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ISigninData } from '../../interfaces/ISignin'
 import { UsersService } from '../../services/users/users.service'
 import { ButtonModule } from 'primeng/button'
@@ -15,6 +16,7 @@ import { HeaderComponent } from '../../components/header/header.component'
 })
 export class HomeComponent {
   private usersService = inject(UsersService)
+  private destroyRef = inject(DestroyRef)
 
   userData!: ISigninData | null
   quickDirections = [
@@ -39,9 +41,11 @@ export class HomeComponent {
   ]
 
   ngOnInit() {
-    this.usersService.user$.subscribe((data) => {
-      this.userData = data
-    })
+    this.usersService.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.userData = data
+      })
   }
 
   get fullName() {

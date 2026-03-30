@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core'
+import { Component, DestroyRef, inject } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ButtonModule } from 'primeng/button'
 import { ToolbarModule } from 'primeng/toolbar'
 import { SidebarComponent } from '../sidebar/sidebar.component'
@@ -17,13 +18,16 @@ import { ButtonThemeComponent } from '../button-theme/button-theme.component'
 })
 export class HeaderComponent {
   private usersService = inject(UsersService)
+  private destroyRef = inject(DestroyRef)
 
   userData!: ISigninData | null
 
   ngOnInit() {
-    this.usersService.user$.subscribe((data) => {
-      this.userData = data
-    })
+    this.usersService.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.userData = data
+      })
   }
 
   get userRole() {

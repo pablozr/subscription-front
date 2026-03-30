@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core'
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { DrawerModule, Drawer } from 'primeng/drawer'
 import { ButtonModule } from 'primeng/button'
 import { RippleModule } from 'primeng/ripple'
@@ -20,6 +21,7 @@ import { ISigninData } from '../../interfaces/ISignin'
 export class SidebarComponent implements OnInit {
   private usersService = inject(UsersService)
   private router = inject(Router)
+  private destroyRef = inject(DestroyRef)
 
   userData!: ISigninData | null
   sidebarVisible = false
@@ -29,9 +31,11 @@ export class SidebarComponent implements OnInit {
   @ViewChild('sidebarRef') sidebarRef!: Drawer
 
   ngOnInit() {
-    this.usersService.user$.subscribe((data) => {
-      this.userData = data
-    })
+    this.usersService.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.userData = data
+      })
 
     this.availableRoutes = [
       {
@@ -56,6 +60,26 @@ export class SidebarComponent implements OnInit {
             routeQuery: [],
             label: 'Subscriptions',
             class: 'pi pi-wallet',
+            codesCanAccess: [],
+            rolesCanAccess: ['ALL'],
+            status: true,
+            routes: []
+          },
+          {
+            route: '/payments',
+            routeQuery: [],
+            label: 'Payments',
+            class: 'pi pi-credit-card',
+            codesCanAccess: [],
+            rolesCanAccess: ['ALL'],
+            status: true,
+            routes: []
+          },
+          {
+            route: '/profile',
+            routeQuery: [],
+            label: 'Profile',
+            class: 'pi pi-user',
             codesCanAccess: [],
             rolesCanAccess: ['ALL'],
             status: true,

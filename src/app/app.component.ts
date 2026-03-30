@@ -2,7 +2,6 @@ import { Component } from '@angular/core'
 import { RouterOutlet } from '@angular/router'
 import { PrimeNG } from 'primeng/config'
 import { ThemeService } from './modules/global/services/theme/theme.service'
-import { UsersService } from './modules/global/services/users/users.service'
 import { ToastModule } from 'primeng/toast'
 
 @Component({
@@ -15,9 +14,10 @@ import { ToastModule } from 'primeng/toast'
 export class AppComponent {
   title = 'Angular Template'
 
-  constructor(private primeng: PrimeNG, private themeService: ThemeService, usersService: UsersService) {}
+  constructor(private primeng: PrimeNG, private themeService: ThemeService) {}
 
   ngOnInit() {
+    void this.themeService
     this.primeng.ripple.set(true)
   }
 }

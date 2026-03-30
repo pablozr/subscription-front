@@ -30,9 +30,9 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit() {
     this.registerForm = new FormGroup({
-      fullName: new FormControl('', [Validators.required, Validators.minLength(2)]),
+      fullName: new FormControl('', [Validators.required, Validators.minLength(8)]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      password: new FormControl('', [Validators.required, Validators.minLength(8)]),
       confirmPassword: new FormControl('', [Validators.required])
     })
   }
@@ -117,6 +117,22 @@ export class RegisterComponent implements OnInit {
   }
 
   signinWithGoogle() {
-    this.toast.info('Google sign-in', 'Google OAuth integration is not available yet.')
+    const token = window.prompt('Paste your Google ID token to continue:')?.trim()
+
+    if (!token) {
+      return
+    }
+
+    this.handleGoogleLogin(token)
+  }
+
+  private async handleGoogleLogin(token: string) {
+    this.isLoading = true
+    const success = await this.usersService.signinWithGoogle(token)
+    this.isLoading = false
+
+    if (success) {
+      this.router.navigate(['/home'])
+    }
   }
 }

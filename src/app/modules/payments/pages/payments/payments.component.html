@@ -1,0 +1,201 @@
+<div class="all-container">
+  <app-header />
+
+  <section class="page-shell rise-in">
+    <header class="page-hero">
+      <div>
+        <p class="page-eyebrow">Billing</p>
+        <h1 class="page-title">Payments</h1>
+        <p class="page-description">
+          Register subscription payments and track your payment history with date filters and pagination.
+        </p>
+      </div>
+    </header>
+
+    <section class="payments-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>History filters</h2>
+        </div>
+
+        <form [formGroup]="filterForm" class="filters-form" (ngSubmit)="applyFilters()">
+          <div class="field-col">
+            <label for="subscriptionFilter">Subscription</label>
+            <select id="subscriptionFilter" formControlName="subscriptionId">
+              <option [ngValue]="null">All subscriptions</option>
+              @for (subscription of subscriptions; track subscription.id) {
+                <option [ngValue]="subscription.id">{{ subscription.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="grid-two">
+            <div class="field-col">
+              <label for="startDate">Start date</label>
+              <input pInputText id="startDate" type="date" formControlName="startDate" />
+            </div>
+
+            <div class="field-col">
+              <label for="endDate">End date</label>
+              <input pInputText id="endDate" type="date" formControlName="endDate" />
+            </div>
+          </div>
+
+          <div class="limit-actions">
+            <p>Rows per page</p>
+            <div class="limit-options">
+              @for (option of [10, 30, 50]; track option) {
+                <button pButton type="button" class="chip-btn" [class.chip-btn--active]="limit === option" (click)="setLimit(option)">
+                  {{ option }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button pButton type="button" class="secondary-btn" (click)="clearFilters()" [disabled]="loading">
+              Clear
+            </button>
+            <button pButton type="button" class="secondary-btn" (click)="loadHistory()" [disabled]="loading">
+              Refresh
+            </button>
+            <button pButton type="submit" class="submit-btn" [disabled]="loading">
+              Apply filters
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Register payment</h2>
+        </div>
+
+        <form [formGroup]="paymentForm" class="payment-form" (ngSubmit)="onSubmitPayment()">
+          <div class="field-col">
+            <label for="subscriptionId">Subscription</label>
+            <select id="subscriptionId" formControlName="subscriptionId" [ngClass]="{ 'input-invalid': isFieldInvalid('subscriptionId') }">
+              <option [ngValue]="null">Choose a subscription</option>
+              @for (subscription of subscriptions; track subscription.id) {
+                <option [ngValue]="subscription.id">{{ subscription.name }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('subscriptionId')) {
+              <small class="field-error">{{ getFieldError('subscriptionId') }}</small>
+            }
+          </div>
+
+          <div class="grid-two">
+            <div class="field-col">
+              <label for="amount">Amount (optional)</label>
+              <input
+                pInputText
+                id="amount"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="amount"
+                [ngClass]="{ 'input-invalid': isFieldInvalid('amount') }"
+              />
+              @if (isFieldInvalid('amount')) {
+                <small class="field-error">{{ getFieldError('amount') }}</small>
+              }
+            </div>
+
+            <div class="field-col">
+              <label for="paidAt">Paid at (optional)</label>
+              <input pInputText id="paidAt" type="date" formControlName="paidAt" />
+            </div>
+          </div>
+
+          <div class="grid-two">
+            <div class="field-col">
+              <label for="paymentMethod">Payment method</label>
+              <input
+                pInputText
+                id="paymentMethod"
+                type="text"
+                formControlName="paymentMethod"
+                placeholder="credit_card"
+                [ngClass]="{ 'input-invalid': isFieldInvalid('paymentMethod') }"
+              />
+              @if (isFieldInvalid('paymentMethod')) {
+                <small class="field-error">{{ getFieldError('paymentMethod') }}</small>
+              }
+            </div>
+
+            <div class="field-col">
+              <label for="reference">Reference (optional)</label>
+              <input pInputText id="reference" type="text" formControlName="reference" placeholder="inv-123" />
+            </div>
+          </div>
+
+          <div class="field-col">
+            <label for="notes">Notes (optional)</label>
+            <input pInputText id="notes" type="text" formControlName="notes" />
+          </div>
+
+          <div class="form-actions">
+            <button pButton type="submit" class="submit-btn" [disabled]="submittingPayment || loadingSubscriptions">
+              {{ submittingPayment ? 'Saving...' : 'Register payment' }}
+            </button>
+          </div>
+        </form>
+      </article>
+    </section>
+
+    <section class="history-panel panel">
+      <div class="panel-head panel-head--split">
+        <h2>Payment history</h2>
+        <div class="pagination-meta">
+          <span>{{ pageRangeLabel }}</span>
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="empty-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <p>Loading payments...</p>
+        </div>
+      } @else if (!payments.length) {
+        <div class="empty-state">
+          <i class="pi pi-receipt"></i>
+          <p>No payment history found for the selected filters.</p>
+        </div>
+      } @else {
+        <div class="history-list">
+          @for (payment of payments; track payment.id) {
+            <article class="history-card">
+              <div class="history-card__top">
+                <div>
+                  <p class="eyebrow">Subscription #{{ payment.subscriptionId }}</p>
+                  <h3>{{ payment.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</h3>
+                </div>
+                <span class="method-pill">{{ payment.paymentMethod }}</span>
+              </div>
+
+              <div class="history-card__meta">
+                <span>Paid at: {{ payment.paidAt | date: 'dd/MM/yyyy' }}</span>
+                @if (payment.reference) {
+                  <span>Reference: {{ payment.reference }}</span>
+                }
+                @if (payment.notes) {
+                  <span>Notes: {{ payment.notes }}</span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      <div class="pagination-actions">
+        <button pButton type="button" class="secondary-btn" (click)="previousPage()" [disabled]="offset === 0 || loading">
+          Previous
+        </button>
+        <button pButton type="button" class="secondary-btn" (click)="nextPage()" [disabled]="!canGoNext || loading">
+          Next
+        </button>
+      </div>
+    </section>
+  </section>
+</div>

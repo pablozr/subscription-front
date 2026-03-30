@@ -41,18 +41,17 @@ export class SubscriptionsComponent {
   subscriptionForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(1)]),
     price: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
-    billingCycle: new FormControl('MONTHLY', [Validators.required]),
+    billingCycle: new FormControl<'WEEKLY' | 'MONTHLY' | 'YEARLY'>('MONTHLY', [Validators.required]),
     startDate: new FormControl('', [Validators.required]),
     reminderDaysBefore: new FormControl<number | null>(0, [Validators.required, Validators.min(0)]),
-    status: new FormControl('ACTIVE'),
+    status: new FormControl<'ACTIVE' | 'CANCELED'>('ACTIVE'),
     nextPaymentDate: new FormControl('')
   })
 
   billingCycleOptions: IBillingCycleOption[] = [
     { value: 'MONTHLY', label: 'Monthly' },
     { value: 'YEARLY', label: 'Yearly' },
-    { value: 'WEEKLY', label: 'Weekly' },
-    { value: 'QUARTERLY', label: 'Quarterly' }
+    { value: 'WEEKLY', label: 'Weekly' }
   ]
 
   statusOptions: ISubscriptionStatusOption[] = [
@@ -282,7 +281,7 @@ export class SubscriptionsComponent {
     return {
       name: this.subscriptionForm.value.name?.trim() || '',
       price: Number(this.subscriptionForm.value.price),
-      billingCycle: this.subscriptionForm.value.billingCycle || 'MONTHLY',
+      billingCycle: this.normalizeBillingCycle(this.subscriptionForm.value.billingCycle),
       startDate: this.subscriptionForm.value.startDate || '',
       reminderDaysBefore: Number(this.subscriptionForm.value.reminderDaysBefore ?? 0)
     }
@@ -294,8 +293,8 @@ export class SubscriptionsComponent {
 
     const name = formValue.name?.trim() || ''
     const price = Number(formValue.price)
-    const billingCycle = formValue.billingCycle || 'MONTHLY'
-    const status = formValue.status || 'ACTIVE'
+    const billingCycle = this.normalizeBillingCycle(formValue.billingCycle)
+    const status = this.normalizeStatus(formValue.status)
     const reminderDaysBefore = Number(formValue.reminderDaysBefore ?? 0)
     const nextPaymentDate = formValue.nextPaymentDate || ''
 
@@ -325,14 +324,22 @@ export class SubscriptionsComponent {
       return subscription.price / 12
     }
 
-    if (subscription.billingCycle === 'QUARTERLY') {
-      return subscription.price / 3
-    }
-
     if (subscription.billingCycle === 'WEEKLY') {
       return subscription.price * 4.33
     }
 
     return subscription.price
+  }
+
+  private normalizeBillingCycle(value: unknown): 'WEEKLY' | 'MONTHLY' | 'YEARLY' {
+    if (value === 'WEEKLY' || value === 'YEARLY' || value === 'MONTHLY') {
+      return value
+    }
+
+    return 'MONTHLY'
+  }
+
+  private normalizeStatus(value: unknown): 'ACTIVE' | 'CANCELED' {
+    return value === 'CANCELED' ? 'CANCELED' : 'ACTIVE'
   }
 }

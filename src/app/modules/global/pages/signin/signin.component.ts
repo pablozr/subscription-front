@@ -82,6 +82,22 @@ export class SigninComponent implements OnInit {
   }
 
   signinWithGoogle() {
-    this.toast.info('Google sign-in', 'Google OAuth integration is not available yet.')
+    const token = window.prompt('Paste your Google ID token to continue:')?.trim()
+
+    if (!token) {
+      return
+    }
+
+    this.handleGoogleLogin(token)
+  }
+
+  private async handleGoogleLogin(token: string) {
+    this.isLoading = true
+    const success = await this.usersServices.signinWithGoogle(token)
+    this.isLoading = false
+
+    if (success) {
+      this.router.navigate(['/home'])
+    }
   }
 }

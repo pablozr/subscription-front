@@ -1,294 +1,333 @@
 import { inject, Injectable } from '@angular/core'
-import { HttpClient } from '@angular/common/http'
-import { AppToastService } from '../toast/app-toast.service'
-import { BehaviorSubject } from 'rxjs'
 import { Router } from '@angular/router'
-import { IRegisterRequest, ISigninData, ISigninRequest } from '../../interfaces/ISignin'
-import { IUser } from '../../interfaces/IUser'
+import { firstValueFrom } from 'rxjs'
+import {
+  IForgetPasswordRequest,
+  IGoogleSigninRequest,
+  IRegisterRequest,
+  ISigninData,
+  ISigninRequest,
+  IUpdatePasswordRequest,
+  IValidateCodeRequest
+} from '../../interfaces/ISignin'
+import { IUser, IUserUpdateRequest } from '../../interfaces/IUser'
+import { ApiClientService } from '../api/api-client.service'
+import { extractApiErrorMessage, isHandledByGlobalErrorInterceptor } from '../api/api-error'
+import { AuthSessionStore } from '../auth/auth-session.store'
 import { StorageService } from '../local-storage/storage.service'
+import { AppToastService } from '../toast/app-toast.service'
 
-const API_URL = 'http://localhost:8000'
+interface IApiEnvelope<T> {
+  message?: string
+  data?: T
+}
+
+interface IUserApi {
+  id?: number
+  userId?: number
+  email?: string
+  fullName?: string
+  fullname?: string
+  role?: 'BASIC' | 'ADMIN' | string
+  active?: boolean
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
-  private http = inject(HttpClient)
+  private api = inject(ApiClientService)
   private toast = inject(AppToastService)
   private storageService = inject(StorageService)
+  private authSessionStore = inject(AuthSessionStore)
   private router = inject(Router)
 
-  private endpoint: string = API_URL
-
-  private userSubject = new BehaviorSubject<ISigninData | null>(null)
-  user$ = this.userSubject.asObservable()
+  user$ = this.authSessionStore.user$
 
   get currentUser(): ISigninData | null {
-    return this.userSubject.value
+    return this.authSessionStore.currentUser
   }
 
-  // Auth
+  async signin(data: ISigninRequest): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(this.api.post<unknown>('/auth/login', data))
+      const userFromLogin = this.extractUserData(response)
 
-  signin(data: ISigninRequest) {
-    return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/login`, data, { withCredentials: true }).subscribe({
-        next: (res) => {
-          const userData = this.extractUserData(res)
+      if (userFromLogin) {
+        this.authSessionStore.setUser(userFromLogin)
+      }
 
-          if (!userData) {
-            this.toast.error('Sign-in failed', 'Could not read user profile from the server response.')
-            resolve(false)
-            return
-          }
+      const rehydrated = await this.rehydrateSession()
+      if (rehydrated || !!userFromLogin) {
+        return true
+      }
 
-          this.userSubject.next(userData)
-          resolve(true)
-        },
-        error: (err) => {
-          this.toast.error('Sign-in failed', err.error?.detail || 'Invalid credentials.')
-          resolve(false)
-        }
-      })
-    })
+      this.toast.error('Sign-in failed', 'Could not read your session from the server response.')
+      return false
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/auth/login')) {
+        this.toast.error('Sign-in failed', extractApiErrorMessage(error))
+      }
+      return false
+    }
   }
 
-  register(data: IRegisterRequest) {
+  async signinWithGoogle(token: string): Promise<boolean> {
+    const payload: IGoogleSigninRequest = { token }
+
+    try {
+      const response = await firstValueFrom(this.api.post<unknown>('/auth/google/login', payload))
+      const userFromLogin = this.extractUserData(response)
+
+      if (userFromLogin) {
+        this.authSessionStore.setUser(userFromLogin)
+      }
+
+      const rehydrated = await this.rehydrateSession()
+      if (rehydrated || !!userFromLogin) {
+        return true
+      }
+
+      this.toast.error('Google sign-in failed', 'Could not read your session from the server response.')
+      return false
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/auth/google/login')) {
+        this.toast.error('Google sign-in failed', extractApiErrorMessage(error))
+      }
+      return false
+    }
+  }
+
+  async register(data: IRegisterRequest): Promise<boolean> {
     const payload = this.buildRegisterPayload(data)
-    return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/users`, payload, { withCredentials: true }).subscribe({
-        next: (res) => {
-          if (res?.message) {
-            this.toast.success('Account created', 'Your account was created successfully.')
-          }
-          resolve(true)
-        },
-        error: (err) => {
-          this.toast.error('Could not create account', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
+
+    try {
+      const response = await firstValueFrom(this.api.post<IApiEnvelope<unknown>>('/users', payload))
+      const message = response?.message || 'Your account was created successfully.'
+      this.toast.success('Account created', message)
+      return true
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/users')) {
+        this.toast.error('Could not create account', extractApiErrorMessage(error))
+      }
+      return false
+    }
+  }
+
+  async logout(): Promise<boolean> {
+    try {
+      await firstValueFrom(this.api.post('/auth/logout', {}))
+      this.clearSessionState()
+      await this.router.navigate(['/signin'])
+      return true
+    } catch {
+      this.clearSessionState()
+      await this.router.navigate(['/signin'])
+      return false
+    }
+  }
+
+  async rehydrateSession(): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(this.api.get<unknown>('/users/me'))
+      const userData = this.extractUserData(response)
+
+      if (!userData) {
+        this.clearSessionState()
+        return false
+      }
+
+      this.authSessionStore.setUser(userData)
+      return true
+    } catch {
+      this.clearSessionState()
+      return false
+    }
+  }
+
+  async sendEmailForgetPassword(data: IForgetPasswordRequest): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(this.api.post<IApiEnvelope<unknown>>('/auth/forget-password', data))
+      this.toast.success('Email sent', response?.message || 'Check your inbox for the verification code.')
+      return true
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/auth/forget-password')) {
+        this.toast.error('Could not send email', extractApiErrorMessage(error))
+      }
+      return false
+    }
+  }
+
+  async validateCode(data: IValidateCodeRequest): Promise<boolean> {
+    try {
+      await firstValueFrom(this.api.post<IApiEnvelope<unknown>>('/auth/validate-code', data))
+      this.toast.success('Code validated', 'Your verification code is valid.')
+      return true
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/auth/validate-code')) {
+        this.toast.error('Invalid code', extractApiErrorMessage(error))
+      }
+      return false
+    }
+  }
+
+  async validateHashCode(data: { code?: string; hash?: string }): Promise<boolean> {
+    const code = `${data?.code ?? data?.hash ?? ''}`.trim()
+
+    if (!code) {
+      this.toast.error('Invalid code', 'Enter the verification code sent to your email.')
+      return false
+    }
+
+    return this.validateCode({ code })
+  }
+
+  async updatePasswordWithoutOldPassword(data: IUpdatePasswordRequest): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(this.api.post<IApiEnvelope<unknown>>('/auth/update-password', data))
+      this.clearSessionState()
+      this.toast.success('Password updated', response?.message || 'Your password was reset successfully.')
+      return true
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/auth/update-password')) {
+        this.toast.error('Could not update password', extractApiErrorMessage(error))
+      }
+      return false
+    }
+  }
+
+  async editPasswordWithOutOldPassword(_userId: string, data: { newPassword?: string; password?: string }): Promise<boolean> {
+    const password = (data?.newPassword || data?.password || '').trim()
+
+    if (!password) {
+      this.toast.error('Could not update password', 'Password is required.')
+      return false
+    }
+
+    return this.updatePasswordWithoutOldPassword({ password })
+  }
+
+  async editPassword(data: { newPassword?: string; password?: string }): Promise<boolean> {
+    const password = (data?.newPassword || data?.password || '').trim()
+
+    if (!password) {
+      this.toast.error('Could not update password', 'Password is required.')
+      return false
+    }
+
+    return this.updatePasswordWithoutOldPassword({ password })
+  }
+
+  async getCurrentUser(): Promise<IUser | null> {
+    try {
+      const response = await firstValueFrom(this.api.get<unknown>('/users/me'))
+      return this.normalizeUser(this.extractSource(response))
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/users/me')) {
+        this.toast.error('Could not load profile', extractApiErrorMessage(error))
+      }
+      return null
+    }
+  }
+
+  async updateCurrentUser(data: IUserUpdateRequest): Promise<boolean> {
+    const payload: { email?: string; fullname?: string } = {}
+
+    if (data.email?.trim()) {
+      payload.email = data.email.trim()
+    }
+
+    if (data.fullName?.trim()) {
+      payload.fullname = data.fullName.trim()
+    }
+
+    if (!Object.keys(payload).length) {
+      this.toast.info('No changes detected', 'Update at least one field before saving.')
+      return false
+    }
+
+    try {
+      await firstValueFrom(this.api.put<IApiEnvelope<unknown>>('/users/me', payload))
+      await this.rehydrateSession()
+      this.toast.success('Profile updated', 'Your information was updated successfully.')
+      return true
+    } catch (error) {
+      if (!isHandledByGlobalErrorInterceptor(error, '/users/me')) {
+        this.toast.error('Could not update profile', extractApiErrorMessage(error))
+      }
+      return false
+    }
+  }
+
+  private clearSessionState() {
+    this.authSessionStore.clear()
+    this.storageService.deleteLocalStorage('USER-BASIC-TEMPLATE')
   }
 
   private buildRegisterPayload(data: IRegisterRequest) {
-    const fullName = data.fullName.trim().replace(/\s+/g, ' ')
     return {
-      fullName,
+      fullName: data.fullName.trim().replace(/\s+/g, ' '),
       email: data.email.trim(),
       password: data.password
     }
   }
 
-  logout() {
-    return new Promise<boolean>((resolve) => {
-      this.http.post(`${this.endpoint}/auth/logout`, {}, { withCredentials: true }).subscribe({
-        next: () => {
-          this.userSubject.next(null)
-          this.storageService.deleteLocalStorage('USER-BASIC-TEMPLATE')
-          this.router.navigate(['/signin'])
-          resolve(true)
-        },
-        error: () => {
-          this.userSubject.next(null)
-          this.storageService.deleteLocalStorage('USER-BASIC-TEMPLATE')
-          this.router.navigate(['/signin'])
-          resolve(false)
-        }
-      })
-    })
+  private extractUserData(payload: unknown): ISigninData | null {
+    const source = this.extractSource(payload)
+    const user = this.normalizeUser(source)
+
+    if (!user) {
+      return null
+    }
+
+    return {
+      user: {
+        userId: user.userId,
+        accessId: user.userId,
+        email: user.email,
+        fullName: user.fullName,
+        active: user.active ?? true,
+        role: user.role
+      }
+    }
   }
 
-  rehydrateSession() {
-    return new Promise<boolean>((resolve) => {
-      this.http.get<any>(`${this.endpoint}/users/me`, { withCredentials: true }).subscribe({
-        next: (res) => {
-          const userData = this.extractUserData(res)
+  private extractSource(payload: unknown) {
+    const data = payload as {
+      data?: {
+        user?: IUserApi
+      } | IUserApi
+      user?: IUserApi
+    }
 
-          if (!userData) {
-            resolve(false)
-            return
-          }
+    const nestedData = data?.data
+    const hasNestedUser = typeof nestedData === 'object' && nestedData !== null && 'user' in nestedData
 
-          this.userSubject.next(userData)
-          resolve(true)
-        },
-        error: () => {
-          resolve(false)
-        }
-      })
-    })
+    return hasNestedUser
+      ? (nestedData as { user?: IUserApi }).user ?? null
+      : (nestedData as IUserApi | undefined) ?? data?.user ?? (payload as IUserApi | null)
   }
 
-  // Forget password flow
-
-  sendEmailForgetPassword(data: any) {
-    return new Promise<any>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/forget-password`, data).subscribe({
-        next: (res) => {
-          if (res?.message) {
-            this.toast.success('Email sent', res.message)
-          }
-          resolve(res)
-        },
-        error: (err) => {
-          this.toast.error('Could not send email', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  validateHashCode(data: any) {
-    return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/validate-code`, data).subscribe({
-        next: (res) => {
-          if (res?.validated || res?.isValid || res?.userId || res?.message) {
-            this.toast.success('Code validated', 'Your confirmation code is valid.')
-            resolve(true)
-          } else {
-            this.toast.error('Invalid code', 'The code is invalid or expired.')
-            resolve(false)
-          }
-        },
-        error: (err) => {
-          this.toast.error('Invalid code', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  editPasswordWithOutOldPassword(userId: string, data: any) {
-    return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/update-password`, { ...data, userId }).subscribe({
-        next: (res) => {
-          if (res?.message) {
-            this.toast.success('Password updated', 'Your password was reset successfully.')
-            resolve(true)
-          } else {
-            this.toast.error('Could not update password', 'An error occurred while changing your password.')
-            resolve(false)
-          }
-        },
-        error: (err) => {
-          this.toast.error('Could not update password', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  // Users CRUD
-
-  findAllUsers() {
-    return new Promise<IUser[]>((resolve) => {
-      this.http.get<any>(`${this.endpoint}/users`, { withCredentials: true }).subscribe({
-        next: (data) => resolve(data || []),
-        error: (err) => {
-          this.toast.error('Could not load users', err.error?.detail || 'Please try again.')
-          resolve([])
-        }
-      })
-    })
-  }
-
-  findOneUser(userId: number) {
-    return new Promise<IUser | null>((resolve) => {
-      this.http.get<IUser>(`${this.endpoint}/users/${userId}`, { withCredentials: true }).subscribe({
-        next: (data) => resolve(data || null),
-        error: (err) => {
-          this.toast.error('Could not load user', err.error?.detail || 'Please try again.')
-          resolve(null)
-        }
-      })
-    })
-  }
-
-  createUser(data: any) {
-    return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/users`, data, { withCredentials: true }).subscribe({
-        next: (res) => {
-          if (res?.message) {
-            this.toast.success('User created', 'The user account was created successfully.')
-          }
-          resolve(!!res)
-        },
-        error: (err) => {
-          this.toast.error('Could not create user', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  editUser(userId: number, data: any) {
-    return new Promise<boolean>((resolve) => {
-      this.http.put<any>(`${this.endpoint}/users/me`, data, { withCredentials: true }).subscribe({
-        next: (res) => {
-          if (res) {
-            this.toast.success('Profile updated', 'Your information was updated successfully.')
-          }
-          resolve(!!res)
-        },
-        error: (err) => {
-          this.toast.error('Could not update profile', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  deleteUser(userId: number) {
-    return new Promise<boolean>((resolve) => {
-      this.http.delete<any>(`${this.endpoint}/users/${userId}`, { withCredentials: true }).subscribe({
-        next: (res) => {
-          if (res?.message) {
-            this.toast.success('User deleted', 'The user was deleted successfully.')
-          }
-          resolve(!!res)
-        },
-        error: (err) => {
-          this.toast.error('Could not delete user', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  editPassword(data: any) {
-    return new Promise<boolean>((resolve) => {
-      this.http.post<any>(`${this.endpoint}/auth/update-password`, data, { withCredentials: true }).subscribe({
-        next: (res) => {
-          if (res?.message) {
-            this.toast.success('Password updated', res.message)
-          }
-          resolve(!!res?.message)
-        },
-        error: (err) => {
-          this.toast.error('Could not update password', err.error?.detail || 'Please try again.')
-          resolve(false)
-        }
-      })
-    })
-  }
-
-  private extractUserData(data: any): ISigninData | null {
-    const source = data?.data?.user ?? data?.user ?? data?.data ?? data
-
+  private normalizeUser(source: IUserApi | null): IUser | null {
     if (!source) {
       return null
     }
 
+    const userId = Number(source.userId ?? source.id ?? 0)
+    const email = `${source.email ?? ''}`.trim()
+    const fullName = `${source.fullName ?? source.fullname ?? ''}`.trim()
     const role = source.role === 'ADMIN' ? 'ADMIN' : 'BASIC'
 
+    if (!userId || !email) {
+      return null
+    }
+
     return {
-      user: {
-        accessId: Number(source.userId ?? source.id ?? source.accessId ?? 0),
-        email: source.email ?? '',
-        fullName: source.fullName ?? source.fullname ?? '',
-        active: source.active ?? true,
-        role
-      }
+      userId,
+      email,
+      fullName,
+      role,
+      active: source.active ?? true
     }
   }
 }
